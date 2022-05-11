@@ -15,11 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView
+from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
+    CreateMenuView, DetailMenuView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', IndexView.as_view(), name='index-view'),
+    path('menu/add/', CreateMenuView.as_view(), name='create-menu'),
+    path('menu/<int:menu_id>', DetailMenuView.as_view(), name='menu-details'),
     path('menu/dish/add/', CreateDishView.as_view(), name='create-dish'),
     path('reservations/add/', CreateReservationView.as_view(), name='create-reservation'),
     path('reservations/upcoming/', UpcomingReservationsView.as_view(), name='upcoming-reservations'),
