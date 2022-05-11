@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    Dzisiaj jest {{ today }}, zaplanowanych rezerwacji <b>{{ amount }}</b>, łącznie {{ all_guests }} gości.
+
+    <ul>
+        {% for res in reservations %}
+            <li>{{ res.name }} - {{ res.guest_number }} osób - {{ res.hour|date:"G:i" }}</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

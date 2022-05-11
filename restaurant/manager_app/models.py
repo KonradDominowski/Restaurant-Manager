@@ -1,20 +1,29 @@
 from django.db import models
 
 
+# TODO
+# Add confirmed field and advance payment field
 class Reservation(models.Model):
     name = models.CharField(max_length=128)
     guest_number = models.PositiveIntegerField()
-    date_hour = models.DateTimeField(null=True)
+    date = models.DateField(null=True)
+    hour = models.TimeField(null=True)
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True)
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True)
     extra_info = models.ManyToManyField('ExtraInfo', through='ReservationExtraInfo')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name, self.date
+
 
 class Table(models.Model):
     name = models.CharField(max_length=64)
     capacity = models.IntegerField()
+
+    def __str__(self):
+        return self.name
 
 
 class Menu(models.Model):
@@ -23,6 +32,9 @@ class Menu(models.Model):
     dishes = models.ManyToManyField('Dish')
     price = models.FloatField()
     active = models.BooleanField()
+
+    def __str__(self):
+        return self.name
 
 
 DISH_CATEGORY = (
@@ -38,17 +50,21 @@ class Dish(models.Model):
     category = models.CharField(max_length=32, choices=DISH_CATEGORY)
     price = models.FloatField()
 
+    def __str__(self):
+        return self.name
+
 
 class ExtraInfo(models.Model):
-    vegetarian = models.BooleanField()
-    vegan = models.BooleanField()
-    celiac = models.BooleanField()
-    peanut_allergy = models.BooleanField()
-    dairy = models.BooleanField()
-    child_seat = models.BooleanField()
+    vegetarian = models.BooleanField(default=False)
+    vegan = models.BooleanField(default=False)
+    celiac = models.BooleanField(default=False)
+    peanut_allergy = models.BooleanField(default=False)
+    dairy = models.BooleanField(default=False)
+    child_seat = models.BooleanField(default=False)
 
 
 class ReservationExtraInfo(models.Model):
     reservation = models.ForeignKey('Reservation', on_delete=models.CASCADE)
     info = models.ForeignKey('ExtraInfo', on_delete=models.CASCADE)
     amount = models.IntegerField()
+

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <ul>
+        {% for date in res_date %}
+            <ol><h5>{{ date }} - {{ date|date:'l' }}</h5>
+                {% for res in reservations %}
+                    {% if res.date == date %}
+                        <li>{{ res.hour|date:'G:i' }} -
+                            <a href="/reservations/detail/id" >{{ res.name }}</a> -
+                            Gości: {{ res.guest_number }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endfor %}
+    </ul>
+{% endblock %}
