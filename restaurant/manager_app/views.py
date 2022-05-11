@@ -1,12 +1,13 @@
-from datetime import date, time, timedelta
+from datetime import date, timedelta
 
-from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, DetailView
 
-from .models import Reservation, Dish
-from .forms import CreateReservationForm
+from .forms import CreateReservationForm, CreateMenuForm
+from .models import Reservation, Dish, Menu
 
 
 class IndexView(View):
@@ -26,15 +27,35 @@ class IndexView(View):
 class CreateDishView(CreateView):
     model = Dish
     fields = '__all__'
-    success_url = '/'
+    success_url = '/menu/dish/add/'
     template_name = 'dish-add.html'
 
 
-class CreateReservationView(CreateView):
-    model = Reservation
-    form_class = CreateReservationForm
-    success_url = '/'
-    template_name = 'reservations-add.html'
+# class CreateReservationView(CreateView):
+#
+#     def get_date_param(self):
+#         return self.request.GET.get['date']
+#
+#     date = get_date_param
+#     model = Reservation
+#     form_class = CreateReservationForm(initial={'guest_number': date})
+#     success_url = '/'
+#     template_name = 'reservations-add.html'
+
+
+# TODO redirect to reservation list or details
+class CreateReservationView(View):
+    def get(self, request):
+        raw_date = request.GET.get('date').split(',')
+        res_date = date(int(raw_date[0]), int(raw_date[1]), int(raw_date[2]))
+        form = CreateReservationForm(initial={'date': res_date})
+        return render(request, 'reservations-add.html', {'form': form})
+
+    def post(self, request):
+        form = CreateReservationForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect(reverse('upcoming-reservations'))
 
 
 class UpcomingReservationsView(ListView):
@@ -53,3 +74,29 @@ class UpcomingReservationsView(ListView):
         context['reservations'] = queryset
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         return context
+
+
+class CreateMenuView(CreateView):
+    model = Menu
+    form_class = CreateMenuForm
+    template_name = 'menu-add.html'
+
+    def form_valid(self, form):
+        form.save()
+        menu_id = Menu.objects.get(name=form.cleaned_data['name']).id
+        return redirect(reverse_lazy('menu-details', kwargs={'menu_id': menu_id}))
+
+
+class DetailMenuView(ListView):
+    model = Menu
+    context_object_name = 'menu'
+    template_name = 'menu-details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
+        print(Menu.objects.get(id=self.kwargs['menu_id']))
+        return context
+
+    # def get_queryset(self):
+    #     return Menu.objects.get(id=self.kwargs['menu_id'])

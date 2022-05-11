@@ -13,16 +13,16 @@
     <input type='checkbox' id='responsive-menu' onclick='updatemenu()'><label></label>
     <ul>
         <li><a href='{% url "index-view" %}'>Home</a></li>
-        <li><a class='dropdown-arrow' href='/reservations/'>Rezerwacje</a>
+        <li><a class='dropdown-arrow' href='{% url 'upcoming-reservations' %}'>Rezerwacje</a>
             <ul class='sub-menus'>
                 <li><a href='{% url 'create-reservation' %}'>Dodaj</a></li>
                 <li><a href='{% url 'upcoming-reservations' %}'>Nadchodzące</a></li>
-                <li><a href='/reservations/'>Services 3</a></li>
             </ul>
         </li>
         <li><a class='dropdown-arrow' href='http://'>Menu</a>
             <ul class='sub-menus'>
                 <li><a href='http://'>Ustalone Menu</a></li>
+                <li><a href='{% url 'create-menu' %}'>Dodaj Menu</a></li>
                 <li><a href='{% url 'create-dish' %}'>Dodaj danie</a></li>
             </ul>
         </li>

@@ -1,13 +1,19 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 
+hour_list = [(datetime(1000, 1, 1, hour=10) + i * timedelta(minutes=15)).time() for i in range(53)]
+HOUR_CHOICES = zip(hour_list, hour_list)
 
-# TODO
-# Add confirmed field and advance payment field
+
+# TODO - Add fields: reservation confirmed and advance payment
+# TODO - Handle timeslots for reservations of the same table
+# TODO - Handle duplicate reservations of the same table - unique together
 class Reservation(models.Model):
     name = models.CharField(max_length=128)
     guest_number = models.PositiveIntegerField()
     date = models.DateField(null=True)
-    hour = models.TimeField(null=True)
+    hour = models.TimeField(null=True, choices=HOUR_CHOICES)
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True)
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True)
     extra_info = models.ManyToManyField('ExtraInfo', through='ReservationExtraInfo')
@@ -27,7 +33,7 @@ class Table(models.Model):
 
 
 class Menu(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     prepared = models.BooleanField()
     dishes = models.ManyToManyField('Dish')
     price = models.FloatField()
@@ -67,4 +73,3 @@ class ReservationExtraInfo(models.Model):
     reservation = models.ForeignKey('Reservation', on_delete=models.CASCADE)
     info = models.ForeignKey('ExtraInfo', on_delete=models.CASCADE)
     amount = models.IntegerField()
-
