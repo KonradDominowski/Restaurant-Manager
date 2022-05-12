@@ -6,7 +6,7 @@ from django.views import View
 from django.views.generic import CreateView, ListView
 
 from .forms import CreateReservationForm, CreateMenuForm
-from .models import Reservation, Dish, Menu
+from .models import Reservation, Dish, Menu, HOUR_CHOICES
 
 
 def daterange(start_date, end_date):
@@ -35,24 +35,14 @@ class CreateDishView(CreateView):
     template_name = 'dish-add.html'
 
 
-# class CreateReservationView(CreateView):
-#
-#     def get_date_param(self):
-#         return self.request.GET.get['date']
-#
-#     date = get_date_param
-#     model = Reservation
-#     form_class = CreateReservationForm(initial={'guest_number': date})
-#     success_url = '/'
-#     template_name = 'reservations-add.html'
-
-
 # TODO redirect to reservation list or details
 class CreateReservationView(View):
     def get(self, request):
-        raw_date = request.GET.get('date').split(',')
-        res_date = date(int(raw_date[0]), int(raw_date[1]), int(raw_date[2]))
-        form = CreateReservationForm(initial={'date': res_date})
+        form = CreateReservationForm()
+        if request.GET.get('date'):
+            raw_date = request.GET.get('date').split(',')
+            res_date = date(int(raw_date[0]), int(raw_date[1]), int(raw_date[2]))
+            form = CreateReservationForm(initial={'date': res_date})
         return render(request, 'reservations-add.html', {'form': form})
 
     def post(self, request):
@@ -102,6 +92,3 @@ class DetailMenuView(ListView):
         context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
         print(Menu.objects.get(id=self.kwargs['menu_id']))
         return context
-
-    # def get_queryset(self):
-    #     return Menu.objects.get(id=self.kwargs['menu_id'])
