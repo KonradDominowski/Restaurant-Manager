@@ -1,16 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
-    <ul>
-        {% for date in date_range %}
-            <ol><h3><a href="{% url 'create-reservation' %}?date={{ date|date:'Y,n,d' }}">{{ date }} - {{ date|date:'l' }}</a></h3>
-                {% for res in reservations %}
-                    {% if res.date == date %}
-                        <li>{{ res.hour|date:'G:i' }} -
-                            <a href="/reservations/details/{{ res.id }}">{{ res.name }}</a> -
-                            Gości: {{ res.guest_number }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ol>
-        {% endfor %}
-    </ul>
+    <main id="app" class="js-tasks-list container-md mb-5">
+    <div class="container-xs border">Tekst</div>
+            {% for date in date_range %}
+                <section class="card mt-5 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>{{ date }}</h5>
+                        </div>
+                        <div>
+                            <a class="btn btn-outline-danger btn-sm ml-2"
+                               href="{% url 'create-reservation' %}?date={{ date|date:'Y,n,d' }}">
+                                Dodaj rezerwację
+                            </a>
+                        </div>
+                    </div>
+                    {% for res in reservations %}
+                        <ol class="list-group list-group-flush">
+                        {% if res.date == date %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    {{ res.hour|date:'G:i' }} -
+                                    <a href="/reservations/details/{{ res.id }}">{{ res.name }}</a> -
+                                    Gości: {{ res.guest_number }}
+                                    <span class="badge badge-success badge-pill ml-2">2h 0m</span>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline-success btn-sm mr-2">+15m</button>
+                                    <button class="btn btn-outline-success btn-sm mr-2">+1h</button>
+                                    <button class="btn btn-outline-danger btn-sm">Delete</button>
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a class="btn btn-outline-danger btn-sm ml-2"
+                               href="{% url 'create-reservation' %}?date={{ date|date:'Y,n,d' }}">
+                                Dodaj rezerwację
+                            </a>
+                        </div>
+                    </li>
+                    </ol>
+                </section>
+            {% endfor %}
+    </main>
+
 {% endblock %}
