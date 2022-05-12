@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <ul>
-        {% for date in res_date %}
+        {% for date in date_range %}
             <ol><h3><a href="{% url 'create-reservation' %}?date={{ date|date:'Y,n,d' }}">{{ date }} - {{ date|date:'l' }}</a></h3>
                 {% for res in reservations %}
                     {% if res.date == date %}

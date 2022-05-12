@@ -1,13 +1,17 @@
 from datetime import date, timedelta
 
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import CreateView, ListView, DetailView
+from django.views.generic import CreateView, ListView
 
 from .forms import CreateReservationForm, CreateMenuForm
 from .models import Reservation, Dish, Menu
+
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
 
 
 class IndexView(View):
@@ -69,9 +73,10 @@ class UpcomingReservationsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = date.today()
-        next_week = today + timedelta(days=14)
-        queryset = Reservation.objects.filter(date__gte=today, date__lte=next_week).order_by('date', 'hour')
+        end_date = today + timedelta(days=14)
+        queryset = Reservation.objects.filter(date__gte=today, date__lte=end_date).order_by('date', 'hour')
         context['reservations'] = queryset
+        context['date_range'] = daterange(today, end_date)
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         return context
 
