@@ -7,10 +7,16 @@ from manager_app.models import Reservation, Dish
 def add_starters():
     starters = (
         ('Mięsa pieczone (450g): schab, karkówka marynowana w ziołach, boczek, cygański', 79),
+        ('Pasztet domowy z żurawiną', 39),
+        ('Mozzarella z tatarem z pomidorów i świeżą bazylią', 59),
+        ('Carpaccio z buraka z serem gorgonzola i pestkami prażonej dyni', 49),
+        ('Tortilla z warzywami', 1),
+        ('Sałatka cezar z kurczakiem', 1),
+        ('Domowe marynaty', 1),
+        ('Pieczywo, masło', 1),
         ('Tatar wołowy podawany z siekana cebulą, korniszonem i marynowanymi grzybkami', 95),
         ('Parfait z wątróbki drobiowej podane na grzance ziołowej z rukolą i odrobiną musu figowego, 8szt', 49),
         ('Carpaccio z polędwicy wołowej na rukoli z kaparami i parmezanem', 99),
-        ('Pasztet domowy z żurawiną', 39),
         ('Smalec z ogórkiem małosolnym (200g)', 19),
         ('Tatar z marynowanego łososia z siekaną czerwoną cebulką, kaparami i czarnymi oliwkami', 95),
         ('Śledzik podawany z cebulką w oleju lub z jabłuszkiem w śmietanie', 49),
@@ -20,15 +26,13 @@ def add_starters():
         ('Mini gofry szpinakowe z ziołową ricottą, rukolą i wędzonym łososiem 8 szt', 59),
         ('Marynowane papryczki chilli faszerowane ziołowym serkiem, podawane na rukoli z '
          'grzankami i balsamicznym winegretem 8 szt', 49),
-        ('Carpaccio z buraka z serem gorgonzola i pestkami prażonej dyni', 49),
-        ('Mozzarella z tatarem z pomidorów i świeżą bazylią', 59),
         ('Jajka w majonezie 12 połówek', 25),
         ('Sałata z grillowanym kurczakiem, warzywami julienne i sosem sojowo – imbirowym', 89),
         ('Sałata z liści szpinaku z sosem gorgonzola z orzechami włoskim,i, boczkiem i pomidorkami cherry', 89),
         ('PATERA CIAST (sernik, szarlotka, brownie)', 99),
-        ('PATERA OWOCÓW (owoce sezonowe', 9))
+        ('PATERA OWOCÓW (owoce sezonowe', 99))
     for name, price in starters:
-        Dish.objects.create(name=name, category='Przystawka', price=price)
+        Dish.objects.create(name=name, category='Przystawka grupowa', price=price)
 
 
 def add_dishes():

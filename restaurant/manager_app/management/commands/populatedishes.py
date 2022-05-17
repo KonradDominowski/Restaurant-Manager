@@ -7,4 +7,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         add_dishes()
-        self.stdout.write(self.style.SUCCESS("Succesfully populated restaurant with dishes"))
+        self.stdout.write(self.style.SUCCESS("Successfully populated restaurant with dishes"))

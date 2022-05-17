@@ -20,9 +20,9 @@
                 <li><a href='{% url 'upcoming-reservations' %}'>Nadchodzące</a></li>
             </ul>
         </li>
-        <li><a class='dropdown-arrow' href='http://'>Menu</a>
+        <li><a class='dropdown-arrow' href='{% url 'menu-list' %}'>Menu</a>
             <ul class='sub-menus'>
-                <li><a href='http://'>Ustalone Menu</a></li>
+                <li><a href='{% url 'menu-list' %}'>Ustalone Menu</a></li>
                 <li><a href='{% url 'create-menu' %}'>Dodaj Menu</a></li>
                 <li><a href='{% url 'create-dish' %}'>Dodaj danie</a></li>
             </ul>

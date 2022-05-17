@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+    <ul>
+    {% for menu in menus %}
+        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }}</a>
+    {% endfor %}
+    </ul>
+{% endblock %}

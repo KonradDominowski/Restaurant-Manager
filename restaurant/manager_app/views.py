@@ -1,12 +1,13 @@
 from datetime import date, timedelta
 
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import CreateView, ListView
 
-from .forms import CreateReservationForm, CreateMenuForm
-from .models import Reservation, Dish, Menu, HOUR_CHOICES
+from .forms import CreateReservationForm, CreateMenuForm, SelectTableForm, SelectMenuForm
+from .models import Reservation, Dish, Menu, Table
 
 
 def daterange(start_date, end_date):
@@ -75,10 +76,14 @@ class CreateMenuView(CreateView):
     model = Menu
     form_class = CreateMenuForm
     template_name = 'menu-add.html'
+    # queryset = Dish.objects.order_by('-category').order_by('id')
 
     def form_valid(self, form):
+        data = form.cleaned_data
+        data['dishes'] = data['group_apps'] | data['starters'] | data['soups'] | data['main_courses'] | data['desserts']
+        print(data)
         form.save()
-        menu_id = Menu.objects.get(name=form.cleaned_data['name']).id
+        menu_id = Menu.objects.get(name=data['name']).id
         return redirect(reverse_lazy('menu-details', kwargs={'menu_id': menu_id}))
 
 
@@ -92,3 +97,44 @@ class DetailMenuView(ListView):
         context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
         print(Menu.objects.get(id=self.kwargs['menu_id']))
         return context
+
+
+class MenuListView(ListView):
+    model = Menu
+    context_object_name = 'menus'
+    template_name = 'menu-list.html'
+
+
+class ReservationDetailView(View):
+    def get(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        tables = Table.objects.all()
+        table_form = SelectTableForm(initial={'reservation': reservation})
+        menu_form = SelectMenuForm(initial={'reservation': reservation})
+        ctx = {
+            'res': reservation,
+            'tables': tables,
+            'table_form': table_form,
+            'menu_form': menu_form
+        }
+        return render(request, 'reservations-details.html', ctx)
+
+
+class SaveTableToReservation(View):
+    def post(self, request, res_id):
+        form = SelectTableForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.table = form.cleaned_data['table']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class SaveMenuToReservation(View):
+    def post(self, request, res_id):
+        form = SelectMenuForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.menu = form.cleaned_data['menu']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))

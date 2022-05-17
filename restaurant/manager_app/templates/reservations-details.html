@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>{{ res.date }} {{ res.hour|date:"G:i" }} - {{ res.name }}</h2>
+
+    <ul>
+        <li>Stół: {{ res.table }}
+            <p>
+                <button type="button" data-bs-toggle="collapse"
+                        data-bs-target="#table_form"
+                        aria-expanded="false" aria-controls="collapseExample">
+                    Change table
+                </button>
+            </p>
+            <div class="collapse" id="table_form">
+                <form method="post" action="{% url 'save-table' res_id=res.id %}">
+                    {% csrf_token %}
+                    {{ table_form }}
+                    <button type="submit">Dodaj stół</button>
+                </form>
+            </div>
+        </li>
+
+        <li>Ilość gości: {{ res.guest_number }}</li>
+        <li>Menu: {{ res.menu }}
+            <p>
+                <button type="button" data-bs-toggle="collapse"
+                        data-bs-target="#menu_form"
+                        aria-expanded="false" aria-controls="collapseExample">
+                    Change menu
+                </button>
+            </p>
+            <div class="collapse" id="menu_form">
+                <form method="post" action="{% url 'save-menu' res_id=res.id %}">
+                    {% csrf_token %}
+                    {{ menu_form }}
+                    <button type="submit">Dodaj menu</button>
+                </form>
+            </div>
+
+        </li>
+    </ul>
+{% endblock content %}
