@@ -53,5 +53,17 @@
                 </form>
             </div>
         </li>
+        {% if extra_info %}
+            <li>
+                <ol>
+                    {% for name, value in extra_info.get_fields|slice:"1:" %}
+                        {% if value > 0 %}
+                            <li>{{ name }} : {{ value }}
+                        {% endif %}
+                    {% endfor %}
+                    </li>
+                </ol>
+            </li>
+        {% endif %}
     </ul>
 {% endblock content %}

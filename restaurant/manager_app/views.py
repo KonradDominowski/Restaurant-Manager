@@ -115,7 +115,7 @@ class ReservationDetailView(View):
         tables = Table.objects.all()
         table_form = SelectTableForm(initial={'reservation': reservation})
         menu_form = SelectMenuForm(initial={'reservation': reservation})
-        extra_info_form = ExtraInfoForm(initial={'reservation_id': reservation.id})
+        extra_info_form = ExtraInfoForm(initial={'reservation': reservation})
         ctx = {
             'res': reservation,
             'tables': tables,
@@ -123,6 +123,11 @@ class ReservationDetailView(View):
             'menu_form': menu_form,
             'extra_info_form': extra_info_form
         }
+        try:
+            extra_info = ExtraInfo.objects.get(reservation=reservation)
+            ctx['extra_info'] = extra_info
+        except ExtraInfo.DoesNotExist:
+            pass
         return render(request, 'reservations-details.html', ctx)
 
 
@@ -153,6 +158,4 @@ class SaveInfoToReservation(View):
         form = ExtraInfoForm(request.POST)
         if form.is_valid():
             form.save()
-            reservation = form.cleaned_data['reservation_id']
-            print(form.cleaned_data)
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))

@@ -17,8 +17,8 @@ class Reservation(models.Model):
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True, verbose_name='Stół')
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True, verbose_name='Menu')
     notes = models.TextField(null=True, verbose_name='Notatki')
-    extra_info = models.OneToOneField('ExtraInfo', on_delete=models.CASCADE, null=True,
-                                      verbose_name='Dodatkowe informacje')
+    # extra_info = models.OneToOneField('ExtraInfo', on_delete=models.CASCADE, null=True,
+    #                                   verbose_name='Dodatkowe informacje')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Utworzono')
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
@@ -67,7 +67,8 @@ class Dish(models.Model):
 
 
 class ExtraInfo(models.Model):
-    reservation_id = models.OneToOneField('Reservation', on_delete=models.CASCADE, verbose_name='Rezerwacja')
+    reservation = models.OneToOneField('Reservation', on_delete=models.CASCADE, verbose_name='Rezerwacja',
+                                       primary_key=True)
     vegetarian = models.PositiveIntegerField(default=0, verbose_name='Dieta wegetariańska')
     vegan = models.PositiveIntegerField(default=0, verbose_name='Dieta wegańska')
     celiac = models.PositiveIntegerField(default=0, verbose_name='Celiakia')
@@ -76,13 +77,10 @@ class ExtraInfo(models.Model):
     child_seat = models.PositiveIntegerField(default=0, verbose_name='Krzesełko dla dziecka')
 
     def __str__(self):
-        return str(self.reservation_id)
+        return str(self.reservation)
 
     def __repr__(self):
-        return str(self.reservation_id)
+        return str(self.reservation)
 
-
-# class ReservationExtraInfo(models.Model):
-#     reservation = models.ForeignKey('Reservation', on_delete=models.CASCADE)
-#     info = models.ForeignKey('ExtraInfo', on_delete=models.CASCADE)
-#     amount = models.IntegerField(verbose_name='Ilość')
+    def get_fields(self):
+        return [(field.name, getattr(self, field.name)) for field in ExtraInfo._meta.fields]

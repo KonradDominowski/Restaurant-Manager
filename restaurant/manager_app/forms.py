@@ -77,5 +77,5 @@ class ExtraInfoForm(ModelForm):
         model = ExtraInfo
         fields = '__all__'
         widgets = {
-            'reservation_id': forms.HiddenInput(),
+            'reservation': forms.HiddenInput(),
         }
