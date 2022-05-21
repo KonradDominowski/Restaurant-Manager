@@ -36,7 +36,22 @@
                     <button type="submit">Dodaj menu</button>
                 </form>
             </div>
-
+        </li>
+        <li>
+            <p>
+                <button type="button" data-bs-toggle="collapse"
+                        data-bs-target="#extra_info_form"
+                        aria-expanded="false" aria-controls="collapseExample">
+                    Dodaj informacje
+                </button>
+            </p>
+            <div class="collapse" id="extra_info_form">
+                <form method="post" action="{% url 'save-info' res_id=res.id %}">
+                    {% csrf_token %}
+                    {{ extra_info_form.as_p }}
+                    <button type="submit">Zapisz</button>
+                </form>
+            </div>
         </li>
     </ul>
 {% endblock content %}

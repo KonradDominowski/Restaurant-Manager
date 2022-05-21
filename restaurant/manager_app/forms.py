@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Form
 
-from .models import Dish, Reservation, Menu, Table
+from .models import Dish, Reservation, Menu, Table, ExtraInfo
 
 
 def date_is_in_the_future(date_to_check):
@@ -27,7 +27,7 @@ class CreateReservationForm(ModelForm):
 
     class Meta:
         model = Reservation
-        fields = ['date', 'name', 'guest_number', 'hour', 'table', 'menu']
+        fields = ['date', 'name', 'guest_number', 'hour', 'table', 'menu', 'notes']
 
 
 class CreateMenuForm(ModelForm):
@@ -42,7 +42,7 @@ class CreateMenuForm(ModelForm):
     soups = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Zupa').order_by('id'),
                                            widget=forms.CheckboxSelectMultiple,
                                            required=False,
-                                           label='Zupa',)
+                                           label='Zupa', )
     main_courses = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Danie główne').order_by('id'),
                                                   widget=forms.CheckboxSelectMultiple,
                                                   required=False,
@@ -70,3 +70,12 @@ class SelectTableForm(Form):
 class SelectMenuForm(Form):
     reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
     menu = forms.ModelChoiceField(Menu.objects.all())
+
+
+class ExtraInfoForm(ModelForm):
+    class Meta:
+        model = ExtraInfo
+        fields = '__all__'
+        widgets = {
+            'reservation_id': forms.HiddenInput(),
+        }

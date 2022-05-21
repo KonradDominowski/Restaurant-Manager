@@ -6,8 +6,8 @@ from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import CreateView, ListView
 
-from .forms import CreateReservationForm, CreateMenuForm, SelectTableForm, SelectMenuForm
-from .models import Reservation, Dish, Menu, Table
+from .forms import CreateReservationForm, CreateMenuForm, SelectTableForm, SelectMenuForm, ExtraInfoForm
+from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
 
 def daterange(start_date, end_date):
@@ -50,7 +50,10 @@ class CreateReservationView(View):
         form = CreateReservationForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect(reverse('upcoming-reservations'))
+            return redirect(reverse('upcoming-reservations'))
+        else:
+            form = CreateReservationForm(initial=form.cleaned_data)
+            return render(request, 'reservations-add.html', {'form': form})
 
 
 class UpcomingReservationsView(ListView):
@@ -76,6 +79,7 @@ class CreateMenuView(CreateView):
     model = Menu
     form_class = CreateMenuForm
     template_name = 'menu-add.html'
+
     # queryset = Dish.objects.order_by('-category').order_by('id')
 
     def form_valid(self, form):
@@ -111,11 +115,13 @@ class ReservationDetailView(View):
         tables = Table.objects.all()
         table_form = SelectTableForm(initial={'reservation': reservation})
         menu_form = SelectMenuForm(initial={'reservation': reservation})
+        extra_info_form = ExtraInfoForm(initial={'reservation_id': reservation.id})
         ctx = {
             'res': reservation,
             'tables': tables,
             'table_form': table_form,
-            'menu_form': menu_form
+            'menu_form': menu_form,
+            'extra_info_form': extra_info_form
         }
         return render(request, 'reservations-details.html', ctx)
 
@@ -137,4 +143,16 @@ class SaveMenuToReservation(View):
             reservation = form.cleaned_data['reservation']
             reservation.menu = form.cleaned_data['menu']
             reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+# TODO maybe extra info needs a different approach?
+# TODO ExtraInfo saves but it doesn't add to reservation
+class SaveInfoToReservation(View):
+    def post(self, request, res_id):
+        form = ExtraInfoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            reservation = form.cleaned_data['reservation_id']
+            print(form.cleaned_data)
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))

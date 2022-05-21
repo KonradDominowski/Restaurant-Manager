@@ -2,7 +2,7 @@
 {% block content %}
     <ul>
     {% for menu in menus %}
-        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }}</a>
+        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }} zł</a>
     {% endfor %}
     </ul>
 {% endblock %}

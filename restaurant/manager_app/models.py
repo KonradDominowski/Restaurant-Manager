@@ -16,16 +16,17 @@ class Reservation(models.Model):
     hour = models.TimeField(null=True, choices=HOUR_CHOICES, verbose_name='Godzina')
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True, verbose_name='Stół')
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True, verbose_name='Menu')
-    extra_info = models.ManyToManyField('ExtraInfo', through='ReservationExtraInfo',
-                                        verbose_name='Dodatkowe informacje')
+    notes = models.TextField(null=True, verbose_name='Notatki')
+    extra_info = models.OneToOneField('ExtraInfo', on_delete=models.CASCADE, null=True,
+                                      verbose_name='Dodatkowe informacje')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Utworzono')
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
     def __str__(self):
-        return self.name, self.date
+        return f'{self.name}, {self.date}'
 
     def __repr__(self):
-        return self.name, self.date
+        return f'{self.name}, {self.date}'
 
 
 class Table(models.Model):
@@ -33,7 +34,7 @@ class Table(models.Model):
     capacity = models.IntegerField(verbose_name='Ilość miejsc')
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Menu(models.Model):
@@ -44,7 +45,7 @@ class Menu(models.Model):
     active = models.BooleanField()
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 DISH_CATEGORY = (
@@ -62,19 +63,26 @@ class Dish(models.Model):
     price = models.FloatField(verbose_name='Cena')
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class ExtraInfo(models.Model):
-    vegetarian = models.BooleanField(default=False, verbose_name='Dieta wegetariańska')
-    vegan = models.BooleanField(default=False, verbose_name='Dieta wegańska')
-    celiac = models.BooleanField(default=False, verbose_name='Celiakia')
-    peanut_allergy = models.BooleanField(default=False, verbose_name='Alergia na orzechy')
-    dairy = models.BooleanField(default=False, verbose_name='Dieta beznabiałowa')
-    child_seat = models.BooleanField(default=False, verbose_name='Krzesełko dla dziecka')
+    reservation_id = models.OneToOneField('Reservation', on_delete=models.CASCADE, verbose_name='Rezerwacja')
+    vegetarian = models.PositiveIntegerField(default=0, verbose_name='Dieta wegetariańska')
+    vegan = models.PositiveIntegerField(default=0, verbose_name='Dieta wegańska')
+    celiac = models.PositiveIntegerField(default=0, verbose_name='Celiakia')
+    peanut_allergy = models.PositiveIntegerField(default=0, verbose_name='Alergia na orzechy')
+    dairy = models.PositiveIntegerField(default=0, verbose_name='Dieta beznabiałowa')
+    child_seat = models.PositiveIntegerField(default=0, verbose_name='Krzesełko dla dziecka')
+
+    def __str__(self):
+        return str(self.reservation_id)
+
+    def __repr__(self):
+        return str(self.reservation_id)
 
 
-class ReservationExtraInfo(models.Model):
-    reservation = models.ForeignKey('Reservation', on_delete=models.CASCADE)
-    info = models.ForeignKey('ExtraInfo', on_delete=models.CASCADE)
-    amount = models.IntegerField(verbose_name='Ilość')
+# class ReservationExtraInfo(models.Model):
+#     reservation = models.ForeignKey('Reservation', on_delete=models.CASCADE)
+#     info = models.ForeignKey('ExtraInfo', on_delete=models.CASCADE)
+#     amount = models.IntegerField(verbose_name='Ilość')

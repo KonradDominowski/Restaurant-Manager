@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
-    CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation
+    CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
+    SaveInfoToReservation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +31,5 @@ urlpatterns = [
     path('reservations/details/<int:res_id>', ReservationDetailView.as_view(), name='reservation-details'),
     path('reservations/details/<int:res_id>/savetable', SaveTableToReservation.as_view(), name='save-table'),
     path('reservations/details/<int:res_id>/savemenu', SaveMenuToReservation.as_view(), name='save-menu'),
+    path('reservations/details/<int:res_id>/saveinfo', SaveInfoToReservation.as_view(), name='save-info'),
 ]
