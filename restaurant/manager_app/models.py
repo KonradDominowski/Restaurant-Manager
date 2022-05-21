@@ -77,7 +77,10 @@ class ExtraInfo(models.Model):
     child_seat = models.PositiveIntegerField(default=0, verbose_name='Krzesełko dla dziecka')
 
     def __str__(self):
-        return str(self.reservation)
+        text = ''
+        for name, value in self.get_fields():
+            text += f'{name}: {value}\n'
+        return text
 
     def __repr__(self):
         return str(self.reservation)

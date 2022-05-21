@@ -125,7 +125,9 @@ class ReservationDetailView(View):
         }
         try:
             extra_info = ExtraInfo.objects.get(reservation=reservation)
+            initial_dict = {key: value for key, value in extra_info.get_fields()}
             ctx['extra_info'] = extra_info
+            ctx['extra_info_form'] = ExtraInfoForm(initial=initial_dict)
         except ExtraInfo.DoesNotExist:
             pass
         return render(request, 'reservations-details.html', ctx)
@@ -152,10 +154,11 @@ class SaveMenuToReservation(View):
 
 
 # TODO maybe extra info needs a different approach?
-# TODO ExtraInfo saves but it doesn't add to reservation
 class SaveInfoToReservation(View):
     def post(self, request, res_id):
-        form = ExtraInfoForm(request.POST)
+        reservation = Reservation.objects.get(id=res_id)
+        extra_info = ExtraInfo.objects.get(reservation=reservation)
+        form = ExtraInfoForm(request.POST, instance=extra_info)
         if form.is_valid():
             form.save()
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))

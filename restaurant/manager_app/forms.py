@@ -30,6 +30,7 @@ class CreateReservationForm(ModelForm):
         fields = ['date', 'name', 'guest_number', 'hour', 'table', 'menu', 'notes']
 
 
+# TODO maybe divide it in a template
 class CreateMenuForm(ModelForm):
     group_apps = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Przystawka grupowa').order_by('id'),
                                                 widget=forms.CheckboxSelectMultiple,
@@ -77,5 +78,5 @@ class ExtraInfoForm(ModelForm):
         model = ExtraInfo
         fields = '__all__'
         widgets = {
-            'reservation': forms.HiddenInput(),
+            'reservation_': forms.HiddenInput(),
         }
