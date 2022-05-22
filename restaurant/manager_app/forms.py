@@ -19,11 +19,16 @@ class CreateDishForm(ModelForm):
 
 
 class CreateReservationForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['notes'].required = False
+
     date = forms.DateField(validators=[date_is_in_the_future],
                            widget=forms.DateInput(attrs={'type': 'date'}),
                            label='Data')
     table = forms.ModelChoiceField(Table.objects.all(), required=False, label='Stół')
     menu = forms.ModelChoiceField(Menu.objects.all(), required=False)
+    notes = forms.TextInput(attrs={'required': 'false'})
 
     class Meta:
         model = Reservation

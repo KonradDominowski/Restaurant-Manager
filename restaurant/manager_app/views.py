@@ -7,7 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import CreateView, ListView
 
-from .forms import CreateReservationForm, CreateMenuForm, SelectTableForm, SelectMenuForm, ExtraInfoForm
+from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
 
