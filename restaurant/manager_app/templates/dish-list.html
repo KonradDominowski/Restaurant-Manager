@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <ul>
+        {#    {% for dish in dishes %}#}
+        {#        <li><a href="/menu/dish/{{ dish.id }}">{{ dish }}</a>#}
+        {#    {% endfor %}#}
+
+        {% for key in Zupa %}
+            <li>{{ key }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
