@@ -47,7 +47,7 @@
                 </div>
             </li>
         </ul>
-        <form class="form-inline ms-auto" action="{% url 'search-reservations' %}" method="post">
+        <form class="d-flex ms-auto" action="{% url 'search-reservations' %}" method="post">
             {% csrf_token %}
             <input class="form-control mr-sm-2" name="search" type="search" placeholder="Szukaj rezerwacji"
                    aria-label="Search">
