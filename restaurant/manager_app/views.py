@@ -33,7 +33,7 @@ class IndexView(View):
         reservations = Reservation.objects.filter(date=today).order_by('hour')
         all_guests = sum(i.guest_number for i in reservations)
         ctx = {
-            'today': today,
+            'date': today,
             'reservations': reservations,
             'amount': reservations.count(),
             'all_guests': all_guests
@@ -212,7 +212,7 @@ class ReservationsSearchView(View):
     def post(self, request):
         search = request.POST.get('search')
         try:
-            reservations = Reservation.objects.filter(name__icontains=search)
+            reservations = Reservation.objects.filter(name__icontains=search).order_by('date')
             ctx = {
                 'reservations': reservations
             }

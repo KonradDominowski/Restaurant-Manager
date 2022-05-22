@@ -1,80 +1,213 @@
 {% extends 'base.html' %}
 {% block content %}
     {{ message }}
-    <form method="post">
-        <input type="submit" value="Dodaj menu">
+    <form method="post" class="container-sm">
         {% csrf_token %}
         <label>
             Nazwa Menu
             <input type="text" maxlength="128"
                    name="name" value="{{ name }}" required>
         </label>
+        <input type="submit" class="btn btn-success" value="Dodaj menu">
         <br><br>
         <label>
             Cena
             <input type="number" name="price" value="{{ price }}" min="0" required>
         </label>
         <br><br>
-        <label>
-            <h5>Przystawka grupowa</h5>
-            {% for dish in przystawka_grupowa %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
-                        {% if dish in dishes %}
-                       checked
-                        {% endif %}
-                >
-                <label for="{{ dish }}">{{ dish }}</label><br>
-            {% endfor %}
-        </label>
-        <br>
-        <label>
-            <h5>Przystawka</h5>
-            {% for dish in przystawka %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
-                        {% if dish in dishes %}
-                       checked
-                        {% endif %}
-                >
-                <label for="{{ dish }}">{{ dish }}</label><br>
-            {% endfor %}
-        </label>
-        <br>
-        <label>
-            <h5>Zupa</h5>
-            {% for dish in zupa %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
-                        {% if dish in dishes %}
-                       checked
-                        {% endif %}
-                >
-                <label for="{{ dish }}">{{ dish }}</label><br>
-            {% endfor %}
-        </label>
-        <br>
-        <label>
-            <h5>Danie główne</h5>
-            {% for dish in danie_glowne %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
-                        {% if dish in dishes %}
-                       checked
-                        {% endif %}
-                >
-                <label for="{{ dish }}">{{ dish }}</label><br>
-            {% endfor %}
-        </label>
-        <br>
-        <label>
-            <h5>Deser</h5>
-            {% for dish in deser %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
-                        {% if dish in dishes %}
-                       checked
-                        {% endif %}
-                >
-                <label for="{{ dish }}">{{ dish }}</label><br>
-            {% endfor %}
-        </label>
-        <br><br>
-        <input type="submit" value="Dodaj">
-    </form>
+        <div class="accordion" id="dishesAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#przystawki_grupowe" aria-expanded="true" aria-controls="collapseOne">
+                        Przystawki grupowe
+                    </button>
+                </h2>
+                <div id="przystawki_grupowe" class="show accordion-collapse collapse shadow-none"
+                     aria-labelledby="headingOne"
+                     data-bs-parent="#dishesAccordion">
+                    <div class="accordion-body">
+                        {% for dish in przystawka_grupowa %}
+                            <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                                    {% if dish in dishes %}
+                                   checked
+                                    {% endif %}
+                            >
+                            <label for="{{ dish }}">{{ dish }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Przystawki
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse shadow-none" aria-labelledby="headingOne"
+                     data-bs-parent="#dishesAccordion">
+                    <div class="accordion-body">
+                        {% for dish in przystawka %}
+                            <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                                    {% if dish in dishes %}
+                                   checked
+                                    {% endif %}
+                            >
+                            <label for="{{ dish }}">{{ dish }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#soups" aria-expanded="true" aria-controls="collapseOne">
+                        Zupy
+                    </button>
+                </h2>
+                <div id="soups" class="accordion-collapse collapse shadow-none" aria-labelledby="headingOne"
+                     data-bs-parent="#dishesAccordion">
+                    <div class="accordion-body">
+                        {% for dish in zupa %}
+                            <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                                    {% if dish in dishes %}
+                                   checked
+                                    {% endif %}
+                            >
+                            <label for="{{ dish }}">{{ dish }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#main_courses" aria-expanded="true" aria-controls="collapseOne">
+                        Dania główne
+                    </button>
+                </h2>
+                <div id="main_courses" class="accordion-collapse collapse shadow-none" aria-labelledby="headingOne"
+                     data-bs-parent="#dishesAccordion">
+                    <div class="accordion-body">
+                        {% for dish in danie_glowne %}
+                            <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                                    {% if dish in dishes %}
+                                   checked
+                                    {% endif %}
+                            >
+                            <label for="{{ dish }}">{{ dish }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#desserts" aria-expanded="true" aria-controls="collapseOne">
+                        Desery
+                    </button>
+                </h2>
+                <div id="desserts" class="accordion-collapse collapse shadow-none" aria-labelledby="headingOne"
+                     data-bs-parent="#dishesAccordion">
+                    <div class="accordion-body">
+                        {% for dish in deser %}
+                            <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                                    {% if dish in dishes %}
+                                   checked
+                                    {% endif %}
+                            >
+                            <label for="{{ dish }}">{{ dish }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+{#            <p>#}
+{#                <button type="button" class="btn btn-outline-dark text-black shadow-none" data-bs-toggle="collapse"#}
+{#                        data-bs-target="#przystawka_grupowa"#}
+{#                        aria-expanded="false" aria-controls="collapseExample">#}
+{#                    Przystawka grupowa#}
+{#                </button>#}
+{#            </p>#}
+{#            <label class="collapse" id="przystawka_grupowa">#}
+{#                {% for dish in przystawka_grupowa %}#}
+{#                    <input type="checkbox" id="{{ dish }}" name="{{ dish }}"#}
+{#                            {% if dish in dishes %}#}
+{#                           checked#}
+{#                            {% endif %}#}
+{#                    >#}
+{#                    <label for="{{ dish }}">{{ dish }}</label><br>#}
+{#                {% endfor %}#}
+{#            </label>#}
+{#            <p>#}
+{#                <button type="button" class="btn btn-outline-dark text-black shadow-none" data-bs-toggle="collapse"#}
+{#                        data-bs-target="#przystawka"#}
+{#                        aria-expanded="false" aria-controls="collapseExample">#}
+{#                    Przystawka#}
+{#                </button>#}
+{#            </p>#}
+{#            <label class="collapse" id="przystawka">#}
+{#                {% for dish in przystawka %}#}
+{#                    <input type="checkbox" id="{{ dish }}" name="{{ dish }}"#}
+{#                            {% if dish in dishes %}#}
+{#                           checked#}
+{#                            {% endif %}#}
+{#                    >#}
+{#                    <label for="{{ dish }}">{{ dish }}</label><br>#}
+{#                {% endfor %}#}
+{#            </label>#}
+{#            <p>#}
+{#                <button type="button" class="btn btn-outline-dark text-black shadow-none" data-bs-toggle="collapse"#}
+{#                        data-bs-target="#zupa"#}
+{#                        aria-expanded="false" aria-controls="collapseExample">#}
+{#                    Zupa#}
+{#                </button>#}
+{#            </p>#}
+{#            <label class="collapse" id="zupa">#}
+{#                {% for dish in zupa %}#}
+{#                    <input type="checkbox" id="{{ dish }}" name="{{ dish }}"#}
+{#                            {% if dish in dishes %}#}
+{#                           checked#}
+{#                            {% endif %}#}
+{#                    >#}
+{#                    <label for="{{ dish }}">{{ dish }}</label><br>#}
+{#                {% endfor %}#}
+{#            </label>#}
+{#            <p>#}
+{#                <button type="button" class="btn btn-outline-dark text-black shadow-none" data-bs-toggle="collapse"#}
+{#                        data-bs-target="#danie_glowne"#}
+{#                        aria-expanded="false" aria-controls="collapseExample">#}
+{#                    Danie Główne#}
+{#                </button>#}
+{#            </p>#}
+{#            <label class="collapse" id="danie_glowne">#}
+{#                {% for dish in danie_glowne %}#}
+{#                    <input type="checkbox" id="{{ dish }}" name="{{ dish }}"#}
+{#                            {% if dish in dishes %}#}
+{#                           checked#}
+{#                            {% endif %}#}
+{#                    >#}
+{#                    <label for="{{ dish }}">{{ dish }}</label><br>#}
+{#                {% endfor %}#}
+{#            </label>#}
+{#            <p>#}
+{#                <button type="button" class="btn btn-outline-dark text-black shadow-none" data-bs-toggle="collapse"#}
+{#                        data-bs-target="#dessert"#}
+{#                        aria-expanded="false" aria-controls="collapseExample">#}
+{#                    Deser#}
+{#                </button>#}
+{#            </p>#}
+{#            <label class="collapse" id="dessert">#}
+{#                {% for dish in deser %}#}
+{#                    <input type="checkbox" id="{{ dish }}" name="{{ dish }}"#}
+{#                            {% if dish in dishes %}#}
+{#                           checked#}
+{#                            {% endif %}#}
+{#                    >#}
+{#                    <label for="{{ dish }}">{{ dish }}</label><br>#}
+{#                {% endfor %}#}
+{#                <br>#}
+{#            </label>#}
+        </form>
 {% endblock %}

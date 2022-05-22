@@ -1,44 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="container"> Dzisiaj jest {{ today }}, zaplanowanych rezerwacji <b>{{ amount }}</b>, łącznie
-    {{ all_guests }} gości.</div>
+        {{ all_guests }} gości.
+    </div>
 
-    <main id="app" class="js-tasks-list container-md mb-5">
-        <section class="card mt-5 shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <h5>{{ today }}</h5>
-                </div>
-                <div>
-                    <a class="btn btn-outline-danger btn-sm ml-2"
-                       href="{% url 'create-reservation' %}?date={{ date|date:'Y,n,d' }}">
-                        Dodaj rezerwację
-                    </a>
-                </div>
-            </div>
-            {% for res in reservations %}
-                <ol class="list-group list-group-flush">
-                <a type="button" href="{% url 'reservation-details' res_id=res.id %}"
-                   class="btn btn-outline-light text-dark">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            {{ res.hour|date:'G:i' }} - {{ res.name }} - Gości: {{ res.guest_number }}
-                        </div>
-                        <div class="mr-auto">
-                            <button class="btn btn-outline-success btn-sm mr-2">{{ res.menu }}</button>
-                        </div>
-                    </li>
-                </a>
-            {% endfor %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <a class="btn btn-outline-danger btn-sm ml-2"
-                       href="{% url 'create-reservation' %}?date={{ today|date:'Y,n,d' }}">
-                        Dodaj rezerwację
-                    </a>
-                </div>
-            </li>
-            </ol>
-        </section>
-    </main>
+    {% include 'base_reservation_list.html' %}
 {% endblock content %}
