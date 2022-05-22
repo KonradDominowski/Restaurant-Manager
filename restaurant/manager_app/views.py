@@ -75,6 +75,27 @@ class UpcomingReservationsView(ListView):
         return context
 
 
+# class CreateMenuView(View):
+#     def get(self, request):
+#         form = CreateMenuForm(initial={'name': 23, 'price': 23})
+#         ctx = {
+#             'form': form
+#         }
+#         return render(request, 'menu-add.html', ctx)
+#
+#     def post(self, request):
+#         form = CreateMenuForm(request.POST)
+#         _mutable = form.data._mutable
+#         form.data._mutable = True
+#         new_dict = dict(form.data)
+#         new_dict['dishes'] = new_dict['group_apps'] + new_dict['starters'] + new_dict['soups'] + \
+#                              new_dict['main_courses'] + new_dict['desserts']
+#         form.data.update(new_dict)
+#         print(form.is_valid())
+#         print(form.data)
+#         return redirect(reverse('create-menu'))
+
+
 class CreateMenuView(CreateView):
     model = Menu
     form_class = CreateMenuForm
@@ -83,9 +104,10 @@ class CreateMenuView(CreateView):
     # queryset = Dish.objects.order_by('-category').order_by('id')
 
     def form_valid(self, form):
+        print('test')
         data = form.cleaned_data
-        data['dishes'] = data['group_apps'] | data['starters'] | data['soups'] | data['main_courses'] | data['desserts']
-        print(data)
+        print('test')
+        form.cleaned_data['dishes'] = data['group_apps'] | data['starters'] | data['soups'] | data['main_courses'] | data['desserts']
         form.save()
         menu_id = Menu.objects.get(name=data['name']).id
         return redirect(reverse_lazy('menu-details', kwargs={'menu_id': menu_id}))
