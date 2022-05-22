@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-    Dzisiaj jest {{ today }}, zaplanowanych rezerwacji <b>{{ amount }}</b>, łącznie {{ all_guests }} gości.
+    <div class="container"> Dzisiaj jest {{ today }}, zaplanowanych rezerwacji <b>{{ amount }}</b>, łącznie
+    {{ all_guests }} gości.</div>
 
     <main id="app" class="js-tasks-list container-md mb-5">
         <section class="card mt-5 shadow-sm">
