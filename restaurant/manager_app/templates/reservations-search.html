@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <main id="app" class="container-md mb-5">
+        <section class="card mt-5 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>Rezerwacje</h5>
+                </div>
+            </div>
+            {% for res in reservations %}
+                <ol class="list-group list-group-flush">
+                <a type="button" href="{% url 'reservation-details' res_id=res.id %}"
+                   class="btn btn-outline-light text-dark">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div id="{{ res.name }}">
+                            {{ res.hour|date:'G:i' }} - {{ res.name }} - Gości: {{ res.guest_number }}
+                        </div>
+                    </li>
+                </a>
+            {% endfor %}
+            </ol>
+        </section>
+    </main>
+{% endblock content %}
