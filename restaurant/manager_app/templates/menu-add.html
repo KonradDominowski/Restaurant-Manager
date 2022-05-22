@@ -6,18 +6,22 @@
         <label>
             Nazwa Menu
             <input type="text" maxlength="128"
-                   name="name" required>
+                   name="name" value="{{ name }}" required>
         </label>
         <br><br>
         <label>
             Cena
-            <input type="number" name="price" min="0" required>
+            <input type="number" name="price" value="{{ price }}" min="0" required>
         </label>
         <br><br>
         <label>
             <h5>Przystawka grupowa</h5>
             {% for dish in przystawka_grupowa %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}">
+                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                        {% if dish in dishes %}
+                       checked
+                        {% endif %}
+                >
                 <label for="{{ dish }}">{{ dish }}</label><br>
             {% endfor %}
         </label>
@@ -25,7 +29,11 @@
         <label>
             <h5>Przystawka</h5>
             {% for dish in przystawka %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}">
+                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                        {% if dish in dishes %}
+                       checked
+                        {% endif %}
+                >
                 <label for="{{ dish }}">{{ dish }}</label><br>
             {% endfor %}
         </label>
@@ -33,7 +41,11 @@
         <label>
             <h5>Zupa</h5>
             {% for dish in zupa %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}">
+                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                        {% if dish in dishes %}
+                       checked
+                        {% endif %}
+                >
                 <label for="{{ dish }}">{{ dish }}</label><br>
             {% endfor %}
         </label>
@@ -41,7 +53,11 @@
         <label>
             <h5>Danie główne</h5>
             {% for dish in danie_glowne %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}">
+                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                        {% if dish in dishes %}
+                       checked
+                        {% endif %}
+                >
                 <label for="{{ dish }}">{{ dish }}</label><br>
             {% endfor %}
         </label>
@@ -49,7 +65,11 @@
         <label>
             <h5>Deser</h5>
             {% for dish in deser %}
-                <input type="checkbox" id="{{ dish }}" name="{{ dish }}">
+                <input type="checkbox" id="{{ dish }}" name="{{ dish }}"
+                        {% if dish in dishes %}
+                       checked
+                        {% endif %}
+                >
                 <label for="{{ dish }}">{{ dish }}</label><br>
             {% endfor %}
         </label>

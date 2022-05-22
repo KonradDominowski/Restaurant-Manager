@@ -97,6 +97,10 @@ class CreateMenuView(View):
         price = int(request.POST.get('price'))
         dishes = [name for name, value in request.POST.items() if value == 'on']
         dishes_query_set = [Dish.objects.get(name=name) for name in dishes]
+        ctx = get_dishes_by_type()
+        ctx['name'] = name
+        ctx['price'] = price
+        ctx['dishes'] = dishes_query_set
         if name != '' and price > 0:
             try:
                 new_menu = Menu(name=name, prepared=True,
@@ -105,15 +109,13 @@ class CreateMenuView(View):
                 for dish in dishes_query_set:
                     new_menu.dishes.add(dish)
                 return redirect(reverse_lazy('menu-details', kwargs={'menu_id': new_menu.id}))
-
             except IntegrityError:
-                ctx = get_dishes_by_type()
                 ctx['message'] = 'Menu o takiej nazwie już istnieje'
                 return render(request, 'menu-add.html', ctx)
         else:
-            ctx = get_dishes_by_type()
             ctx['message'] = 'Cena musi być powyżej 0'
             return render(request, 'menu-add.html', ctx)
+
 
 # class CreateMenuView(CreateView):
 #     model = Menu
