@@ -1,8 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-    <ul>
-    {% for menu in menus %}
-        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }} zł</a>
-    {% endfor %}
-    </ul>
+    {#    <ul>#}
+    {#    {% for menu in menus %}#}
+    {#        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }} zł</a>#}
+    {#    {% endfor %}#}
+    {#    </ul>#}
+    <div class="row">
+        {% for menu in menus %}
+            <div class="col-sm-3" style="margin-bottom: 10px">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ menu }}</h5>
+                        <p class="card-text">Cena {{ menu.price }} zł</p>
+                        <a href="/menu/{{ menu.id }}" class="btn btn-primary">Szczegóły</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

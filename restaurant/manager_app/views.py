@@ -48,7 +48,6 @@ class CreateDishView(CreateView):
     template_name = 'dish-add.html'
 
 
-# TODO redirect to reservation list or details
 class CreateReservationView(View):
     def get(self, request):
         form = CreateReservationForm()
@@ -131,14 +130,16 @@ class DetailMenuView(ListView):
 
 class MenuListView(ListView):
     model = Menu
-    context_object_name = 'menus'
     template_name = 'menu-list.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menus'] = Menu.objects.filter(active=True).order_by('name')
+        return context
 
-# TODO this view need major work
+
 class DishListView(ListView):
     model = Dish
-    context_object_name = 'dishes'
     template_name = 'dish-list.html'
 
     def get_context_data(self, **kwargs):
@@ -189,6 +190,14 @@ class SaveMenuToReservation(View):
             reservation = form.cleaned_data['reservation']
             reservation.menu = form.cleaned_data['menu']
             reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class RemoveMenuFromReservation(View):
+    def post(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        reservation.menu = None
+        reservation.save()
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
 
 

@@ -13,11 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
-    SaveInfoToReservation, ReservationsSearchView, DishListView
+    SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +35,5 @@ urlpatterns = [
     path('reservations/details/<int:res_id>/savetable', SaveTableToReservation.as_view(), name='save-table'),
     path('reservations/details/<int:res_id>/savemenu', SaveMenuToReservation.as_view(), name='save-menu'),
     path('reservations/details/<int:res_id>/saveinfo', SaveInfoToReservation.as_view(), name='save-info'),
+    path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),
 ]

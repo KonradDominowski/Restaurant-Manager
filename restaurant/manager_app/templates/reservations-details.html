@@ -35,6 +35,10 @@
                     {{ menu_form }}
                     <button type="submit">Dodaj menu</button>
                 </form>
+                <form method="post" action="{% url 'remove-menu' res_id=res.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Usuń menu</button>
+                </form>
             </div>
         </li>
         <li>
