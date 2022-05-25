@@ -9,7 +9,7 @@ from .models import Dish, Reservation, Menu, Table, ExtraInfo
 
 def date_is_in_the_future(date_to_check):
     if (date.today() - date_to_check).days > 0:
-        raise ValidationError(f'{date_to_check} jest w przeszłości')
+        raise ValidationError(f'Nie można dodać rezerwacji w przeszłości.')
 
 
 class CreateDishForm(ModelForm):

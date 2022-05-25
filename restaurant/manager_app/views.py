@@ -143,7 +143,8 @@ class DishListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context = get_dishes_by_type()
+        for key, value in get_dishes_by_type().items():
+            context[key] = value
         return context
 
 
@@ -194,8 +195,13 @@ class SaveMenuToReservation(View):
 class SaveInfoToReservation(View):
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
-        extra_info = ExtraInfo.objects.get(reservation=reservation)
+
+        try:
+            extra_info = ExtraInfo.objects.get(reservation=reservation)
+        except ExtraInfo.DoesNotExist:
+            extra_info = ExtraInfo.objects.create(reservation=reservation)
         form = ExtraInfoForm(request.POST, instance=extra_info)
+
         if form.is_valid():
             form.save()
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))

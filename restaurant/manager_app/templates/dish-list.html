@@ -1,12 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
-    <ul>
-        {#    {% for dish in dishes %}#}
-        {#        <li><a href="/menu/dish/{{ dish.id }}">{{ dish }}</a>#}
-        {#    {% endfor %}#}
 
-        {% for key in Zupa %}
-            <li>{{ key }}</li>
+    <ul><h5>Przystawki grupowe</h5>
+        {% for dish in przystawka_grupowa %}
+            <li>{{ dish }} - {{ dish.price }} zł</li>
         {% endfor %}
     </ul>
+
+    <ul><h5>Przystawki</h5>
+        {% for dish in przystawka %}
+            <li>{{ dish }} - {{ dish.price }} zł</li>
+        {% endfor %}
+    </ul>
+
+    <ul><h5>Zupy</h5>
+        {% for dish in zupa %}
+            <li>{{ dish }} - {{ dish.price }} zł</li>
+        {% endfor %}
+    </ul>
+
+    <ul><h5>Dania główne</h5>
+        {% for dish in danie_glowne %}
+            <li>{{ dish }} - {{ dish.price }} zł</li>
+        {% endfor %}
+    </ul>
+
+    <ul><h5>Desery</h5>
+        {% for dish in deser %}
+            <li>{{ dish }} - {{ dish.price }} zł</li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}
