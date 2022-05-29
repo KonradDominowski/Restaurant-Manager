@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 hour_list = [(datetime(1000, 1, 1, hour=10) + i * timedelta(minutes=15)).time() for i in range(53)]
@@ -7,8 +8,8 @@ HOUR_CHOICES = zip(hour_list, hour_list)
 RESERVATION_DURATION = 3
 
 
+# TODO zablokować dodanie rezerwacji jeśli nie ma wystarczająco dużo czasu
 # TODO - Add fields: reservation confirmed and advance payment
-# TODO - Handle timeslots for reservations of the same table
 class Reservation(models.Model):
     name = models.CharField(max_length=128, verbose_name='Nazwa rezerwacji')
     guest_number = models.PositiveIntegerField(verbose_name='Ilość gości')
@@ -21,23 +22,24 @@ class Reservation(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Utworzono')
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
-    class Meta:
-        unique_together = ['date', 'hour', 'table']
-
     def table_is_free(self):
-        """:returns True if table is available for reservation for given hour"""
+        """ Return True if table is available for reservation for given hour,
+        reservation duration is set by default to 3 hours."""
 
         table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
+        print(table_reservations)
         for res in table_reservations:
             if res.hour < self.hour < res.end_hour:
-                return False
+                raise ValidationError(f'Stół jest zajęty, jest zarezerwowany na {res.hour}')
+            if self.hour < res.hour < self.end_hour:
+                raise ValidationError(f'Stół jest zarezerwowany na {res.hour}')
         return True
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         """Creates a possible end time for reservation, so the table can't be booked twice simultaneously"""
-        if self.table_is_free():
-            self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
-            super(Reservation, self).save(*args, **kwargs)
+        self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
+        self.table_is_free()
+        super(Reservation, self).clean()
 
     def __str__(self):
         return f'{self.name}, {self.date}'
