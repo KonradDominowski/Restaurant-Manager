@@ -97,7 +97,6 @@ class UpcomingReservationsView(ListView):
         return context
 
 
-# TODO usuwanie rezerwacji
 class ReservationDetailView(View):
     def get(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)

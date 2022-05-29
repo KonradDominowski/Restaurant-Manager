@@ -106,8 +106,6 @@
                         <form method="post" action="{% url 'delete-reservation' res_id=res.id %}">
                             {% csrf_token %}
                             <input type="submit" class="btn btn-danger" value="Usuń">
-{#                            <a type="button" class="btn btn-danger"#}
-{#                               href="{% url 'delete-reservation' res_id=res.id %}">Usuń</a>#}
                         </form>
                     </div>
                 </div>
