@@ -5,9 +5,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm
+from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
 
@@ -48,6 +48,17 @@ class CreateDishView(CreateView):
     template_name = 'dish-add.html'
 
 
+class DishListView(ListView):
+    model = Dish
+    template_name = 'dish-list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for key, value in get_dishes_by_type().items():
+            context[key] = value
+        return context
+
+
 class CreateReservationView(View):
     def get(self, request):
         form = CreateReservationForm()
@@ -86,82 +97,23 @@ class UpcomingReservationsView(ListView):
         return context
 
 
-class CreateMenuView(View):
-    def get(self, request):
-        ctx = get_dishes_by_type()
-        return render(request, 'menu-add.html', ctx)
-
-    def post(self, request):
-        name = request.POST.get('name')
-        price = int(request.POST.get('price'))
-        dishes = [name for name, value in request.POST.items() if value == 'on']
-        dishes_query_set = [Dish.objects.get(name=name) for name in dishes]
-        ctx = get_dishes_by_type()
-        ctx['name'] = name
-        ctx['price'] = price
-        ctx['dishes'] = dishes_query_set
-        if name != '' and price > 0:
-            try:
-                new_menu = Menu(name=name, prepared=True,
-                                price=price, active=True)
-                new_menu.save()
-                for dish in dishes_query_set:
-                    new_menu.dishes.add(dish)
-                return redirect(reverse_lazy('menu-details', kwargs={'menu_id': new_menu.id}))
-            except IntegrityError:
-                ctx['message'] = 'Menu o takiej nazwie już istnieje'
-                return render(request, 'menu-add.html', ctx)
-        else:
-            ctx['message'] = 'Cena musi być powyżej 0'
-            return render(request, 'menu-add.html', ctx)
-
-
-class DetailMenuView(ListView):
-    model = Menu
-    context_object_name = 'menu'
-    template_name = 'menu-details.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
-        print(Menu.objects.get(id=self.kwargs['menu_id']))
-        return context
-
-
-class MenuListView(ListView):
-    model = Menu
-    template_name = 'menu-list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['menus'] = Menu.objects.filter(active=True).order_by('name')
-        return context
-
-
-class DishListView(ListView):
-    model = Dish
-    template_name = 'dish-list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        for key, value in get_dishes_by_type().items():
-            context[key] = value
-        return context
-
-
+# TODO usuwanie rezerwacji
 class ReservationDetailView(View):
     def get(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
         tables = Table.objects.all()
-        table_form = SelectTableForm(initial={'reservation': reservation})
-        menu_form = SelectMenuForm(initial={'reservation': reservation})
-        extra_info_form = ExtraInfoForm(initial={'reservation': reservation})
+        initial_dict = {'reservation': reservation}
+        table_form = SelectTableForm(initial=initial_dict)
+        guest_number_form = ChangeGuestNumberForm(initial=initial_dict)
+        menu_form = SelectMenuForm(initial=initial_dict)
+        extra_info_form = ExtraInfoForm(initial=initial_dict)
         ctx = {
             'res': reservation,
             'tables': tables,
             'table_form': table_form,
             'menu_form': menu_form,
-            'extra_info_form': extra_info_form
+            'extra_info_form': extra_info_form,
+            'guest_number_form': guest_number_form
         }
         try:
             extra_info = ExtraInfo.objects.get(reservation=reservation)
@@ -179,6 +131,16 @@ class SaveTableToReservation(View):
         if form.is_valid():
             reservation = form.cleaned_data['reservation']
             reservation.table = form.cleaned_data['table']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class SaveGuestsToReservation(View):
+    def post(self, request, res_id):
+        form = ChangeGuestNumberForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.guest_number = form.cleaned_data['guests']
             reservation.save()
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
 
@@ -234,3 +196,61 @@ class ReservationsSearchView(View):
         except Reservation.DoesNotExist:
             return HttpResponse('Nie istnieją takie rezerwacje')
         return render(request, 'reservations-search.html', ctx)
+
+
+class CreateMenuView(View):
+    def get(self, request):
+        ctx = get_dishes_by_type()
+        return render(request, 'menu-add.html', ctx)
+
+    def post(self, request):
+        name = request.POST.get('name')
+        price = int(request.POST.get('price'))
+        dishes = [name for name, value in request.POST.items() if value == 'on']
+        dishes_query_set = [Dish.objects.get(name=name) for name in dishes]
+        ctx = get_dishes_by_type()
+        ctx['name'] = name
+        ctx['price'] = price
+        ctx['dishes'] = dishes_query_set
+        if name != '' and price > 0:
+            try:
+                new_menu = Menu(name=name, prepared=True,
+                                price=price, active=True)
+                new_menu.save()
+                for dish in dishes_query_set:
+                    new_menu.dishes.add(dish)
+                return redirect(reverse_lazy('menu-details', kwargs={'menu_id': new_menu.id}))
+            except IntegrityError:
+                ctx['message'] = 'Menu o takiej nazwie już istnieje'
+                return render(request, 'menu-add.html', ctx)
+        else:
+            ctx['message'] = 'Cena musi być powyżej 0'
+            return render(request, 'menu-add.html', ctx)
+
+
+class DetailMenuView(ListView):
+    model = Menu
+    context_object_name = 'menu'
+    template_name = 'menu-details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
+        print(Menu.objects.get(id=self.kwargs['menu_id']))
+        return context
+
+
+class MenuListView(ListView):
+    model = Menu
+    template_name = 'menu-list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menus'] = Menu.objects.filter(active=True).order_by('name')
+        return context
+
+
+class UpdateMenuView(UpdateView):
+    model = Menu
+    fields = '__all__'
+    template_name = 'menu-update.html'

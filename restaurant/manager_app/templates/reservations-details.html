@@ -20,7 +20,22 @@
             </div>
         </li>
 
-        <li>Ilość gości: {{ res.guest_number }}</li>
+        <li>Ilość gości: {{ res.guest_number }}
+            <p>
+                <button type="button" data-bs-toggle="collapse"
+                        data-bs-target="#guests_form"
+                        aria-expanded="false" aria-controls="collapseExample">
+                    Change guests
+                </button>
+            </p>
+            <div class="collapse" id="guests_form">
+                <form method="post" action="{% url 'save-guests' res_id=res.id %}">
+                    {% csrf_token %}
+                    {{ guest_number_form }}
+                    <button type="submit">Zapisz</button>
+                </form>
+            </div>
+        </li>
         <li>Menu: {{ res.menu }}
             <p>
                 <button type="button" data-bs-toggle="collapse"
@@ -35,10 +50,12 @@
                     {{ menu_form }}
                     <button type="submit">Dodaj menu</button>
                 </form>
-                <form method="post" action="{% url 'remove-menu' res_id=res.id %}">
-                    {% csrf_token %}
-                    <button type="submit">Usuń menu</button>
-                </form>
+                {% if res.menu %}
+                    <form method="post" action="{% url 'remove-menu' res_id=res.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Usuń menu</button>
+                    </form>
+                {% endif %}
             </div>
         </li>
         <li>
