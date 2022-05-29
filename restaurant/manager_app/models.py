@@ -9,7 +9,6 @@ RESERVATION_DURATION = 3
 
 # TODO - Add fields: reservation confirmed and advance payment
 # TODO - Handle timeslots for reservations of the same table
-# TODO - Handle duplicate reservations of the same table - unique together
 class Reservation(models.Model):
     name = models.CharField(max_length=128, verbose_name='Nazwa rezerwacji')
     guest_number = models.PositiveIntegerField(verbose_name='Ilość gości')
@@ -25,10 +24,20 @@ class Reservation(models.Model):
     class Meta:
         unique_together = ['date', 'hour', 'table']
 
+    def table_is_free(self):
+        """:returns True if table is available for reservation for given hour"""
+
+        table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
+        for res in table_reservations:
+            if res.hour < self.hour < res.end_hour:
+                return False
+        return True
+
     def save(self, *args, **kwargs):
         """Creates a possible end time for reservation, so the table can't be booked twice simultaneously"""
-        self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
-        super(Reservation, self).save(*args, **kwargs)
+        if self.table_is_free():
+            self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
+            super(Reservation, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name}, {self.date}'
