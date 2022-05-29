@@ -5,9 +5,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm
+from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
 
@@ -48,7 +48,17 @@ class CreateDishView(CreateView):
     template_name = 'dish-add.html'
 
 
-# TODO redirect to reservation list or details
+class DishListView(ListView):
+    model = Dish
+    template_name = 'dish-list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for key, value in get_dishes_by_type().items():
+            context[key] = value
+        return context
+
+
 class CreateReservationView(View):
     def get(self, request):
         form = CreateReservationForm()
@@ -85,6 +95,107 @@ class UpcomingReservationsView(ListView):
         context['date_range'] = daterange(today, end_date)
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         return context
+
+
+# TODO usuwanie rezerwacji
+class ReservationDetailView(View):
+    def get(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        tables = Table.objects.all()
+        initial_dict = {'reservation': reservation}
+        table_form = SelectTableForm(initial=initial_dict)
+        guest_number_form = ChangeGuestNumberForm(initial=initial_dict)
+        menu_form = SelectMenuForm(initial=initial_dict)
+        extra_info_form = ExtraInfoForm(initial=initial_dict)
+        ctx = {
+            'res': reservation,
+            'tables': tables,
+            'table_form': table_form,
+            'menu_form': menu_form,
+            'extra_info_form': extra_info_form,
+            'guest_number_form': guest_number_form
+        }
+        try:
+            extra_info = ExtraInfo.objects.get(reservation=reservation)
+            initial_dict = {key: value for key, value in extra_info.get_fields()}
+            ctx['extra_info'] = extra_info
+            ctx['extra_info_form'] = ExtraInfoForm(initial=initial_dict)
+        except ExtraInfo.DoesNotExist:
+            pass
+        return render(request, 'reservations-details.html', ctx)
+
+
+class SaveTableToReservation(View):
+    def post(self, request, res_id):
+        form = SelectTableForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.table = form.cleaned_data['table']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class SaveGuestsToReservation(View):
+    def post(self, request, res_id):
+        form = ChangeGuestNumberForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.guest_number = form.cleaned_data['guests']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class SaveMenuToReservation(View):
+    def post(self, request, res_id):
+        form = SelectMenuForm(request.POST)
+        if form.is_valid():
+            reservation = form.cleaned_data['reservation']
+            reservation.menu = form.cleaned_data['menu']
+            reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class RemoveMenuFromReservation(View):
+    def post(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        reservation.menu = None
+        reservation.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class SaveInfoToReservation(View):
+    def post(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+
+        try:
+            extra_info = ExtraInfo.objects.get(reservation=reservation)
+        except ExtraInfo.DoesNotExist:
+            extra_info = ExtraInfo.objects.create(reservation=reservation)
+        form = ExtraInfoForm(request.POST, instance=extra_info)
+
+        if form.is_valid():
+            form.save()
+        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class ReservationsSearchView(View):
+    def get(self, request):
+        reservations = Reservation.objects.all()
+        ctx = {
+            'reservations': reservations
+        }
+        return render(request, 'reservations-search.html', ctx)
+
+    def post(self, request):
+        search = request.POST.get('search')
+        try:
+            reservations = Reservation.objects.filter(name__icontains=search).order_by('date')
+            ctx = {
+                'reservations': reservations
+            }
+        except Reservation.DoesNotExist:
+            return HttpResponse('Nie istnieją takie rezerwacje')
+        return render(request, 'reservations-search.html', ctx)
 
 
 class CreateMenuView(View):
@@ -131,97 +242,15 @@ class DetailMenuView(ListView):
 
 class MenuListView(ListView):
     model = Menu
-    context_object_name = 'menus'
     template_name = 'menu-list.html'
-
-
-# TODO this view need major work
-class DishListView(ListView):
-    model = Dish
-    context_object_name = 'dishes'
-    template_name = 'dish-list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        for key, value in get_dishes_by_type().items():
-            context[key] = value
+        context['menus'] = Menu.objects.filter(active=True).order_by('name')
         return context
 
 
-class ReservationDetailView(View):
-    def get(self, request, res_id):
-        reservation = Reservation.objects.get(id=res_id)
-        tables = Table.objects.all()
-        table_form = SelectTableForm(initial={'reservation': reservation})
-        menu_form = SelectMenuForm(initial={'reservation': reservation})
-        extra_info_form = ExtraInfoForm(initial={'reservation': reservation})
-        ctx = {
-            'res': reservation,
-            'tables': tables,
-            'table_form': table_form,
-            'menu_form': menu_form,
-            'extra_info_form': extra_info_form
-        }
-        try:
-            extra_info = ExtraInfo.objects.get(reservation=reservation)
-            initial_dict = {key: value for key, value in extra_info.get_fields()}
-            ctx['extra_info'] = extra_info
-            ctx['extra_info_form'] = ExtraInfoForm(initial=initial_dict)
-        except ExtraInfo.DoesNotExist:
-            pass
-        return render(request, 'reservations-details.html', ctx)
-
-
-class SaveTableToReservation(View):
-    def post(self, request, res_id):
-        form = SelectTableForm(request.POST)
-        if form.is_valid():
-            reservation = form.cleaned_data['reservation']
-            reservation.table = form.cleaned_data['table']
-            reservation.save()
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
-
-
-class SaveMenuToReservation(View):
-    def post(self, request, res_id):
-        form = SelectMenuForm(request.POST)
-        if form.is_valid():
-            reservation = form.cleaned_data['reservation']
-            reservation.menu = form.cleaned_data['menu']
-            reservation.save()
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
-
-
-class SaveInfoToReservation(View):
-    def post(self, request, res_id):
-        reservation = Reservation.objects.get(id=res_id)
-
-        try:
-            extra_info = ExtraInfo.objects.get(reservation=reservation)
-        except ExtraInfo.DoesNotExist:
-            extra_info = ExtraInfo.objects.create(reservation=reservation)
-        form = ExtraInfoForm(request.POST, instance=extra_info)
-
-        if form.is_valid():
-            form.save()
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
-
-
-class ReservationsSearchView(View):
-    def get(self, request):
-        reservations = Reservation.objects.all()
-        ctx = {
-            'reservations': reservations
-        }
-        return render(request, 'reservations-search.html', ctx)
-
-    def post(self, request):
-        search = request.POST.get('search')
-        try:
-            reservations = Reservation.objects.filter(name__icontains=search).order_by('date')
-            ctx = {
-                'reservations': reservations
-            }
-        except Reservation.DoesNotExist:
-            return HttpResponse('Nie istnieją takie rezerwacje')
-        return render(request, 'reservations-search.html', ctx)
+class UpdateMenuView(UpdateView):
+    model = Menu
+    fields = '__all__'
+    template_name = 'menu-update.html'

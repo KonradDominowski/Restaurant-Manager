@@ -12,6 +12,11 @@ def date_is_in_the_future(date_to_check):
         raise ValidationError(f'Nie można dodać rezerwacji w przeszłości.')
 
 
+def is_positive(number):
+    if number <= 0:
+        raise ValidationError('Wprowadź liczbę gości powyżej 0.')
+
+
 class CreateDishForm(ModelForm):
     class Meta:
         model = Dish
@@ -71,6 +76,11 @@ class CreateMenuForm(ModelForm):
 class SelectTableForm(Form):
     reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
     table = forms.ModelChoiceField(Table.objects.all())
+
+
+class ChangeGuestNumberForm(Form):
+    reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
+    guests = forms.IntegerField()
 
 
 class SelectMenuForm(Form):

@@ -17,8 +17,6 @@ class Reservation(models.Model):
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True, verbose_name='Stół')
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True, verbose_name='Menu')
     notes = models.TextField(null=True, verbose_name='Notatki')
-    # extra_info = models.OneToOneField('ExtraInfo', on_delete=models.CASCADE, null=True,
-    #                                   verbose_name='Dodatkowe informacje')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Utworzono')
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
