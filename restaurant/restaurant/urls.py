@@ -19,7 +19,7 @@ from django.urls import path
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
     SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation, UpdateMenuView, \
-    SaveGuestsToReservation
+    SaveGuestsToReservation, DeleteReservation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,5 +38,6 @@ urlpatterns = [
     path('reservations/details/<int:res_id>/savemenu', SaveMenuToReservation.as_view(), name='save-menu'),
     path('reservations/details/<int:res_id>/saveinfo', SaveInfoToReservation.as_view(), name='save-info'),
     path('reservations/details/<int:res_id>/saveguests', SaveGuestsToReservation.as_view(), name='save-guests'),
+    path('reservations/details/<int:res_id>/delete', DeleteReservation.as_view(), name='delete-reservation'),
     path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),
 ]

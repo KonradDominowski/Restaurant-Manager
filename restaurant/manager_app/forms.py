@@ -80,7 +80,7 @@ class SelectTableForm(Form):
 
 class ChangeGuestNumberForm(Form):
     reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
-    guests = forms.IntegerField()
+    guests = forms.IntegerField(validators=[is_positive])
 
 
 class SelectMenuForm(Form):

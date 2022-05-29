@@ -155,6 +155,13 @@ class SaveMenuToReservation(View):
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
 
 
+class DeleteReservation(View):
+    def post(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        reservation.delete()
+        return redirect(reverse('upcoming-reservations'))
+
+
 class RemoveMenuFromReservation(View):
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
