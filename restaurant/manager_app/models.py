@@ -20,6 +20,9 @@ class Reservation(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Utworzono')
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
+    class Meta:
+        unique_together = ['date', 'hour', 'table']
+
     def __str__(self):
         return f'{self.name}, {self.date}'
 

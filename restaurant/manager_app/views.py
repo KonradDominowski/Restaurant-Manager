@@ -74,7 +74,6 @@ class CreateReservationView(View):
             form.save()
             return redirect(reverse('upcoming-reservations'))
         else:
-            form = CreateReservationForm(initial=form.cleaned_data)
             return render(request, 'reservations-add.html', {'form': form})
 
 
