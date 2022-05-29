@@ -6,10 +6,10 @@ from django.forms import ModelForm, Form
 
 from .models import Dish, Reservation, Menu, Table, ExtraInfo
 
-
+# TODO w środku rozkminiania walidacji pól
 def date_is_in_the_future(date_to_check):
     if (date.today() - date_to_check).days > 0:
-        raise ValidationError(f'Nie można dodać rezerwacji w przeszłości.')
+        raise ValidationError('Nie można dodać rezerwacji w przeszłości.')
 
 
 def is_positive(number):

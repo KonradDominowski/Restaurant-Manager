@@ -74,7 +74,6 @@ class CreateReservationView(View):
             form.save()
             return redirect(reverse('upcoming-reservations'))
         else:
-            form = CreateReservationForm(initial=form.cleaned_data)
             return render(request, 'reservations-add.html', {'form': form})
 
 
@@ -96,7 +95,7 @@ class UpcomingReservationsView(ListView):
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         return context
 
-
+# TODO zmiana daty, godziny, nazwy
 class ReservationDetailView(View):
     def get(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
