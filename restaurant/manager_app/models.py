@@ -4,6 +4,7 @@ from django.db import models
 
 hour_list = [(datetime(1000, 1, 1, hour=10) + i * timedelta(minutes=15)).time() for i in range(53)]
 HOUR_CHOICES = zip(hour_list, hour_list)
+RESERVATION_DURATION = 3
 
 
 # TODO - Add fields: reservation confirmed and advance payment
@@ -14,6 +15,7 @@ class Reservation(models.Model):
     guest_number = models.PositiveIntegerField(verbose_name='Ilość gości')
     date = models.DateField(null=True, verbose_name='Data')
     hour = models.TimeField(null=True, choices=HOUR_CHOICES, verbose_name='Godzina')
+    end_hour = models.TimeField(null=True, choices=HOUR_CHOICES, verbose_name='Godzina zakończenia')
     table = models.ForeignKey('Table', on_delete=models.CASCADE, null=True, verbose_name='Stół')
     menu = models.ForeignKey('Menu', on_delete=models.CASCADE, null=True, verbose_name='Menu')
     notes = models.TextField(null=True, verbose_name='Notatki')
@@ -22,6 +24,11 @@ class Reservation(models.Model):
 
     class Meta:
         unique_together = ['date', 'hour', 'table']
+
+    def save(self, *args, **kwargs):
+        """Creates a possible end time for reservation, so the table can't be booked twice simultaneously"""
+        self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
+        super(Reservation, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name}, {self.date}'
