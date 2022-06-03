@@ -95,6 +95,7 @@ class UpcomingReservationsView(ListView):
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         return context
 
+
 # TODO zmiana daty, godziny, nazwy
 class ReservationDetailView(View):
     def get(self, request, res_id):

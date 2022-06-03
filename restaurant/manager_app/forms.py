@@ -6,7 +6,7 @@ from django.forms import ModelForm, Form
 
 from .models import Dish, Reservation, Menu, Table, ExtraInfo
 
-# TODO w środku rozkminiania walidacji pól
+
 def date_is_in_the_future(date_to_check):
     if (date.today() - date_to_check).days > 0:
         raise ValidationError('Nie można dodać rezerwacji w przeszłości.')
@@ -40,7 +40,6 @@ class CreateReservationForm(ModelForm):
         fields = ['date', 'name', 'guest_number', 'hour', 'table', 'menu', 'notes']
 
 
-# TODO maybe divide it in a template
 class CreateMenuForm(ModelForm):
     group_apps = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Przystawka grupowa').order_by('id'),
                                                 widget=forms.CheckboxSelectMultiple,

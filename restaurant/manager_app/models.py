@@ -8,7 +8,6 @@ HOUR_CHOICES = zip(hour_list, hour_list)
 RESERVATION_DURATION = 3
 
 
-# TODO zablokować dodanie rezerwacji jeśli nie ma wystarczająco dużo czasu
 # TODO - Add fields: reservation confirmed and advance payment
 class Reservation(models.Model):
     name = models.CharField(max_length=128, verbose_name='Nazwa rezerwacji')
@@ -27,7 +26,6 @@ class Reservation(models.Model):
         reservation duration is set by default to 3 hours."""
 
         table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
-        print(table_reservations)
         for res in table_reservations:
             if res.hour < self.hour < res.end_hour:
                 raise ValidationError(f'Stół jest zajęty, jest zarezerwowany na {res.hour}')

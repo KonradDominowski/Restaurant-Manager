@@ -1,7 +1,7 @@
 from random import randint, randrange
 from datetime import datetime, timedelta, date
 from faker import Factory
-from manager_app.models import Reservation, Dish
+from manager_app.models import Reservation, Dish, RESERVATION_DURATION
 
 
 def add_starters():
@@ -102,8 +102,10 @@ def generate_random_hour():
 def create_reservations():
     start = datetime(2022, 1, 1, 10, 0, 0)
     end = datetime(2023, 1, 1, 10, 0, 0)
-    for data in generate_random_dates(start, end, 200):
+    for data in generate_random_dates(start, end, 500):
+        start_hour = generate_random_hour()
         Reservation.objects.create(name=create_name(),
                                    guest_number=randint(10, 50),
                                    date=data,
-                                   hour=generate_random_hour())
+                                   hour=start_hour,
+                                   end_hour=start_hour.replace(hour=start_hour.hour + RESERVATION_DURATION))
