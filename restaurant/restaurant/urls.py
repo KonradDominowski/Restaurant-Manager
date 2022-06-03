@@ -15,15 +15,18 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, reverse
+from django.contrib.auth import views as auth_views
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
     SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation, UpdateMenuView, \
-    SaveGuestsToReservation, DeleteReservation
-
+    SaveGuestsToReservation, DeleteReservation, SignUpView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', IndexView.as_view(), name='index-view'),
+    path('signup/', SignUpView.as_view(), name='signup'),
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('menu/add/', CreateMenuView.as_view(), name='create-menu'),
     path('menu/list/', MenuListView.as_view(), name='menu-list'),
     path('menu/update/', UpdateMenuView.as_view(), name='menu-update'),
@@ -36,8 +39,9 @@ urlpatterns = [
     path('reservations/details/<int:res_id>', ReservationDetailView.as_view(), name='reservation-details'),
     path('reservations/details/<int:res_id>/savetable', SaveTableToReservation.as_view(), name='save-table'),
     path('reservations/details/<int:res_id>/savemenu', SaveMenuToReservation.as_view(), name='save-menu'),
+    path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),
     path('reservations/details/<int:res_id>/saveinfo', SaveInfoToReservation.as_view(), name='save-info'),
     path('reservations/details/<int:res_id>/saveguests', SaveGuestsToReservation.as_view(), name='save-guests'),
     path('reservations/details/<int:res_id>/delete', DeleteReservation.as_view(), name='delete-reservation'),
-    path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),
 ]
+
