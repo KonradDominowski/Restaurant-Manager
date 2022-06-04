@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.urls import path, reverse
 from django.contrib.auth import views as auth_views
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
-    CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
-    SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation, UpdateMenuView, \
+    CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, \
+    SaveMenuToReservation, SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation, \
     SaveGuestsToReservation, DeleteReservation, SignUpView, EditMenuView, ArchiveMenuView
 
 urlpatterns = [
@@ -32,7 +32,6 @@ urlpatterns = [
     path('menu/<int:menu_id>/edit', EditMenuView.as_view(), name='edit-menu'),
     path('menu/<int:menu_id>/archive', ArchiveMenuView.as_view(), name='archive-menu'),
     path('menu/list/', MenuListView.as_view(), name='menu-list'),
-    path('menu/update/', UpdateMenuView.as_view(), name='menu-update'),
     path('menu/dish/list/', DishListView.as_view(), name='dish-list'),
     path('menu/<int:menu_id>', DetailMenuView.as_view(), name='menu-details'),
     path('menu/dish/add/', CreateDishView.as_view(), name='create-dish'),
@@ -47,4 +46,3 @@ urlpatterns = [
     path('reservations/details/<int:res_id>/saveguests', SaveGuestsToReservation.as_view(), name='save-guests'),
     path('reservations/details/<int:res_id>/delete', DeleteReservation.as_view(), name='delete-reservation'),
 ]
-

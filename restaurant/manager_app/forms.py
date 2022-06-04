@@ -52,7 +52,7 @@ class CreateMenuForm(ModelForm):
     soups = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Zupa').order_by('id'),
                                            widget=forms.CheckboxSelectMultiple,
                                            required=False,
-                                           label='Zupa', )
+                                           label='Zupa')
     main_courses = forms.ModelMultipleChoiceField(Dish.objects.filter(category='Danie główne').order_by('id'),
                                                   widget=forms.CheckboxSelectMultiple,
                                                   required=False,

@@ -20,11 +20,11 @@ def daterange(start_date, end_date):
 
 def get_dishes_by_type():
     dishes = {
-        'przystawka_grupowa': Dish.objects.filter(category='Przystawka grupowa'),
-        'przystawka': Dish.objects.filter(category='Przystawka'),
-        'zupa': Dish.objects.filter(category='Zupa'),
-        'danie_glowne': Dish.objects.filter(category='Danie główne'),
-        'deser': Dish.objects.filter(category='Deser'),
+        'przystawka_grupowa': Dish.objects.filter(category='Przystawka grupowa').order_by('name'),
+        'przystawka': Dish.objects.filter(category='Przystawka').order_by('name'),
+        'zupa': Dish.objects.filter(category='Zupa').order_by('name'),
+        'danie_glowne': Dish.objects.filter(category='Danie główne').order_by('name'),
+        'deser': Dish.objects.filter(category='Deser').order_by('name'),
     }
     return dishes
 
@@ -46,11 +46,13 @@ class IndexView(View):
 class CreateDishView(CreateView):
     model = Dish
     fields = '__all__'
-    success_url = '/menu/dish/add/'
+    success_url = '/menu/dish/list/'
     template_name = 'dish-add.html'
 
 
 class DishListView(ListView):
+    """This view displays all dishes in the database, sorted by their category."""
+
     model = Dish
     template_name = 'dish-list.html'
 
@@ -62,6 +64,8 @@ class DishListView(ListView):
 
 
 class CreateReservationView(View):
+    """This view is for adding a reservation. """
+
     def get(self, request):
         form = CreateReservationForm()
         if request.GET.get('date'):
@@ -79,10 +83,10 @@ class CreateReservationView(View):
             return render(request, 'reservations-add.html', {'form': form})
 
 
+# TODO - Add a functionality to change default 2 week time period to whatever user needs
 class UpcomingReservationsView(ListView):
-    """
-    Shows all reservations scheduled in the following 2 weeks.
-    """
+    """Shows all reservations scheduled in the following 2 weeks."""
+
     model = Reservation
     template_name = 'reservations-upcoming.html'
     context_object_name = 'reservations'
@@ -103,8 +107,13 @@ class UpcomingReservationsView(ListView):
         return context
 
 
-# TODO zmiana daty, godziny, nazwy
+# TODO - date, hour, name change
 class ReservationDetailView(View):
+    """
+    This view display all details about a reservation. There is a form for each detail,
+    so it is possible to change each of them separately.
+    """
+
     def get(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
         tables = Table.objects.all()
@@ -132,6 +141,8 @@ class ReservationDetailView(View):
 
 
 class SaveTableToReservation(View):
+    """View changing table assigned to a reservation, and then redirecting back to its details."""
+
     def post(self, request, res_id):
         form = SelectTableForm(request.POST)
         if form.is_valid():
@@ -142,6 +153,8 @@ class SaveTableToReservation(View):
 
 
 class SaveGuestsToReservation(View):
+    """View changing number of guests of a reservation, and then redirecting back to its details."""
+
     def post(self, request, res_id):
         form = ChangeGuestNumberForm(request.POST)
         if form.is_valid():
@@ -152,6 +165,8 @@ class SaveGuestsToReservation(View):
 
 
 class SaveMenuToReservation(View):
+    """View changing menu assigned to a reservation, and then redirecting back to its details."""
+
     def post(self, request, res_id):
         form = SelectMenuForm(request.POST)
         if form.is_valid():
@@ -162,6 +177,8 @@ class SaveMenuToReservation(View):
 
 
 class RemoveMenuFromReservation(View):
+    """View removing assigned menu from a reservation, and then redirecting back to its details."""
+
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
         reservation.menu = None
@@ -170,6 +187,8 @@ class RemoveMenuFromReservation(View):
 
 
 class SaveInfoToReservation(View):
+    """View changing extra info of a reservation, and then redirecting back to its details."""
+
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
 
@@ -185,6 +204,8 @@ class SaveInfoToReservation(View):
 
 
 class DeleteReservation(View):
+    """View deleting a reservation from the database, it adds a session variable notifying the user abot the removal."""
+
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
         request.session['message'] = f'Usunięto rezerwację {reservation}'
@@ -193,6 +214,8 @@ class DeleteReservation(View):
 
 
 class ReservationsSearchView(View):
+    """View that shows reservations containing entered phrase."""
+
     def get(self, request):
         reservations = Reservation.objects.all()
         ctx = {
@@ -310,12 +333,6 @@ class MenuListView(ListView):
         return context
 
 
-class UpdateMenuView(UpdateView):
-    model = Menu
-    fields = '__all__'
-    template_name = 'menu-update.html'
-
-
 class SignUpView(View):
     def get(self, request):
         form = UserCreationForm()
@@ -334,5 +351,3 @@ class SignUpView(View):
             login(request, user)
             return redirect(reverse('index-view'))
         return redirect('signup')
-
-# TODO Logout view, redirect back to where logged in

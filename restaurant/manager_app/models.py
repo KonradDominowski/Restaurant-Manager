@@ -22,7 +22,7 @@ class Reservation(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name='Zaktualizowano')
 
     def table_is_free(self):
-        """ Return True if table is available for reservation for given hour,
+        """Return True if table is available for a reservation for given hour,
         reservation duration is set by default to 3 hours."""
 
         table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
@@ -34,7 +34,7 @@ class Reservation(models.Model):
         return True
 
     def clean(self):
-        """Creates a possible end time for reservation, so the table can't be booked twice simultaneously"""
+        """Creates a predicted end time for reservation, so the table can't be booked twice simultaneously"""
         self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
         self.table_is_free()
         super(Reservation, self).clean()
@@ -84,6 +84,8 @@ class Dish(models.Model):
 
 
 class ExtraInfo(models.Model):
+    """This model can expand over time, with more additional reservation info being added."""
+
     reservation = models.OneToOneField('Reservation', on_delete=models.CASCADE, verbose_name='Rezerwacja',
                                        primary_key=True)
     vegetarian = models.PositiveIntegerField(default=0, verbose_name='Dieta wegetariańska')
