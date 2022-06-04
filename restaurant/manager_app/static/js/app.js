@@ -1,8 +1,2 @@
-function updateMenu() {
-  if (document.getElementById('responsive-menu').checked === true) {
-    document.getElementById('menu').style.borderBottomRightRadius = '0';
-    document.getElementById('menu').style.borderBottomLeftRadius = '0';
-  }else{
-    document.getElementById('menu').style.borderRadius = '0px';
-  }
-}
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

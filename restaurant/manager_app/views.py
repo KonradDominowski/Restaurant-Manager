@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -154,13 +156,6 @@ class SaveMenuToReservation(View):
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
 
 
-class DeleteReservation(View):
-    def post(self, request, res_id):
-        reservation = Reservation.objects.get(id=res_id)
-        reservation.delete()
-        return redirect(reverse('upcoming-reservations'))
-
-
 class RemoveMenuFromReservation(View):
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
@@ -182,6 +177,13 @@ class SaveInfoToReservation(View):
         if form.is_valid():
             form.save()
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+
+
+class DeleteReservation(View):
+    def post(self, request, res_id):
+        reservation = Reservation.objects.get(id=res_id)
+        reservation.delete()
+        return redirect(reverse('upcoming-reservations'))
 
 
 class ReservationsSearchView(View):
@@ -260,3 +262,25 @@ class UpdateMenuView(UpdateView):
     model = Menu
     fields = '__all__'
     template_name = 'menu-update.html'
+
+
+class SignUpView(View):
+    def get(self, request):
+        form = UserCreationForm()
+        ctx = {
+            'form': form
+        }
+        return render(request, 'signup.html', ctx)
+
+    def post(self, request):
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect(reverse('index-view'))
+        return redirect('signup')
+
+#TODO Logout view, redirect back to where logged in
