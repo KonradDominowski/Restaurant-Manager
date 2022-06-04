@@ -208,7 +208,7 @@ class DeleteReservation(View):
 
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
-        request.session['message'] = f'Usunięto rezerwację {reservation}'
+        request.session['message'] = f'Usunięto rezerwację <strong>{reservation}</strong>'
         reservation.delete()
         return redirect(reverse('upcoming-reservations'))
 
@@ -301,7 +301,7 @@ class ArchiveMenuView(View):
     def get(self, request, menu_id):
         menu = Menu.objects.get(id=menu_id)
         menu.active = False
-        request.session['message'] = f'Menu "{menu}" zostało zarchiwizowane'
+        request.session['message'] = f'Menu <strong>{menu}</strong> zostało zarchiwizowane'
         menu.save()
         return redirect(reverse('menu-list'))
 
