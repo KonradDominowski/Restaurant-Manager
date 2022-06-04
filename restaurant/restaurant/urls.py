@@ -20,7 +20,8 @@ from django.contrib.auth import views as auth_views
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveTableToReservation, SaveMenuToReservation, \
     SaveInfoToReservation, ReservationsSearchView, DishListView, RemoveMenuFromReservation, UpdateMenuView, \
-    SaveGuestsToReservation, DeleteReservation, SignUpView
+    SaveGuestsToReservation, DeleteReservation, SignUpView, EditMenuView, ArchiveMenuView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', IndexView.as_view(), name='index-view'),
@@ -28,6 +29,8 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('menu/add/', CreateMenuView.as_view(), name='create-menu'),
+    path('menu/<int:menu_id>/edit', EditMenuView.as_view(), name='edit-menu'),
+    path('menu/<int:menu_id>/archive', ArchiveMenuView.as_view(), name='archive-menu'),
     path('menu/list/', MenuListView.as_view(), name='menu-list'),
     path('menu/update/', UpdateMenuView.as_view(), name='menu-update'),
     path('menu/dish/list/', DishListView.as_view(), name='dish-list'),

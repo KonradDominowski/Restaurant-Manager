@@ -6,4 +6,33 @@
             <li>{{ dish }}</li>
         {% endfor %}
     </ul>
+
+    <a href="{% url 'edit-menu' menu_id=menu.id %}" type="button" class="btn btn-primary btn-sm shadow-none">Edytuj Menu</a>
+    <button type="button" class="btn btn-secondary btn-sm shadow-none" data-bs-toggle="modal" data-bs-target="#confirmArchive">
+        Archiwizuj menu
+    </button>
+
+    <div class="modal fade" id="confirmArchive" tabindex="-1" aria-labelledby="confirmArchiveLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmArchiveLabel">Potwierdzenie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Czy na pewno chcesz zarchiwizować menu? Nie będziesz mógł z niego korzystać,
+                    ale pozostanie ono w bazie danych
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Powrót</button>
+                    <a href="{% url 'archive-menu' menu_id=menu.id %}" type="button"
+                            class="btn btn-danger">Archiwizuj menu
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock content %}

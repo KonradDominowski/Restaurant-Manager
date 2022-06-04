@@ -95,6 +95,11 @@ class UpcomingReservationsView(ListView):
         context['reservations'] = queryset
         context['date_range'] = daterange(today, end_date)
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
+        try:
+            context['message'] = self.request.session['message']
+            del self.request.session['message']
+        except KeyError:
+            pass
         return context
 
 
@@ -182,6 +187,7 @@ class SaveInfoToReservation(View):
 class DeleteReservation(View):
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
+        request.session['message'] = f'Usunięto rezerwację {reservation}'
         reservation.delete()
         return redirect(reverse('upcoming-reservations'))
 
@@ -236,6 +242,47 @@ class CreateMenuView(View):
             return render(request, 'menu-add.html', ctx)
 
 
+class EditMenuView(View):
+    def get(self, request, menu_id):
+        ctx = get_dishes_by_type()
+        menu = Menu.objects.get(id=menu_id)
+        ctx['menu'] = menu
+        return render(request, 'menu-edit.html', ctx)
+
+    def post(self, request, menu_id):
+        menu_to_update = Menu.objects.get(id=menu_id)
+        name = request.POST.get('name')
+        price = int(float(request.POST.get('price')))
+        dishes = [name for name, value in request.POST.items() if value == 'on']
+        new_dishes_query_set = [Dish.objects.get(name=name) for name in dishes]
+        if name != '' and price > 0:
+            menu_to_update.name = name
+            menu_to_update.price = price
+            # menu_to_update.dishes.clear()  # Pierwsze podejście to usunięcie wszystkich dań,
+            # for dish in new_dishes_query_set:  # a potem dodanie wszystkich z formularza
+            #     menu_to_update.dishes.add(dish)
+
+            for dish in menu_to_update.dishes.all():  # Drugie podejście to usunięcie tylko dań,
+                if dish not in new_dishes_query_set:  # których nie ma w formularzu, a potem dodanie brakujących
+                    menu_to_update.dishes.remove(dish)
+
+            for dish in new_dishes_query_set:
+                if dish not in menu_to_update.dishes.all():
+                    menu_to_update.dishes.add(dish)
+
+            menu_to_update.save()
+            return redirect(reverse_lazy('menu-details', kwargs={'menu_id': menu_to_update.id}))
+
+
+class ArchiveMenuView(View):
+    def get(self, request, menu_id):
+        menu = Menu.objects.get(id=menu_id)
+        menu.active = False
+        request.session['message'] = f'Menu "{menu}" zostało zarchiwizowane'
+        menu.save()
+        return redirect(reverse('menu-list'))
+
+
 class DetailMenuView(ListView):
     model = Menu
     context_object_name = 'menu'
@@ -255,6 +302,11 @@ class MenuListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menus'] = Menu.objects.filter(active=True).order_by('name')
+        try:
+            context['message'] = self.request.session['message']
+            del self.request.session['message']
+        except KeyError:
+            pass
         return context
 
 
@@ -283,4 +335,4 @@ class SignUpView(View):
             return redirect(reverse('index-view'))
         return redirect('signup')
 
-#TODO Logout view, redirect back to where logged in
+# TODO Logout view, redirect back to where logged in

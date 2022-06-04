@@ -1,0 +1,8 @@
+{# This template is used to display a generic notification, for example after removing a menu or a reservation #}
+
+{% if message %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}

@@ -1,10 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    {#    <ul>#}
-    {#    {% for menu in menus %}#}
-    {#        <li><a href="/menu/{{ menu.id }}">{{ menu }} - {{ menu.price }} zł</a>#}
-    {#    {% endfor %}#}
-    {#    </ul>#}
+    {% include 'base_message.html' %}
     <div class="row">
         {% for menu in menus %}
             <div class="col-sm-3" style="margin-bottom: 10px">
