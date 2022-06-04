@@ -86,10 +86,22 @@
                 </ol>
             </li>
         {% endif %}
-        <button type="button" class="btn btn-danger shadow-none"
-                data-bs-toggle="modal" data-bs-target="#confirmDelete">
+
+        {% if request.user.is_authenticated %}
+            <button type="button" class="btn btn-danger shadow-none"
+                    data-bs-toggle="modal" data-bs-target="#confirmDelete">
+                Usuń rezerwację
+            </button>
+        {% else %}
+            <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
+                  title="Musisz się zalogować, aby móc usunąć rezerwację">
+            <button type="button" class="btn btn-danger shadow-none"
+                    disabled>
             Usuń rezerwację
-        </button>
+            </button>
+            </span>
+        {% endif %}
+
         <div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="confirmDeleteLabel"
              aria-hidden="true">
             <div class="modal-dialog">

@@ -31,7 +31,6 @@ def get_dishes_by_type():
 
 class IndexView(View):
     def get(self, request):
-        print(request.user.is_authenticated)
         today = date.today()
         reservations = Reservation.objects.filter(date=today).order_by('hour')
         all_guests = sum(i.guest_number for i in reservations)
