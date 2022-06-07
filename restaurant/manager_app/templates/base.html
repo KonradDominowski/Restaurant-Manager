@@ -59,6 +59,22 @@
 
                 <a href="{% url 'login' %}?next={{ request.path }}" type="button"
                    class="btn btn-light border border-success">Zaloguj się</a>
+
+                {#                <div class="d-inline dropdown">#}
+                {#                    <button class="btn btn-light border border-success dropdown-toggle" type="button"#}
+                {#                            id="dropdownLogin" data-bs-toggle="dropdown" aria-expanded="false">#}
+                {#                        Zaloguj się#}
+                {#                    </button>#}
+                {#                    <ul class="dropdown-menu dropdown-menu-lg-end" style="margin-top: 15px" aria-labelledby="dropdownLogin">#}
+                {#                        <li><a class="dropdown-item" href="#">Action</a></li>#}
+                {#                        <li><a class="dropdown-item" href="#">Another action</a></li>#}
+                {#                        <li><a class="dropdown-item" href="#">Something else here</a></li>#}
+                {#                    </ul>#}
+                {#                </div>#}
+
+
+
+
             {% else %}
                 <a href="{% url 'logout' %}?next={{ request.path }}" type="button"
                    style="margin-left: 5px;"

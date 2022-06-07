@@ -27,7 +27,7 @@ class Reservation(models.Model):
 
         table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
         for res in table_reservations:
-            if res.hour < self.hour < res.end_hour:
+            if res.hour <= self.hour < res.end_hour:
                 raise ValidationError(f'Stół jest zajęty, jest zarezerwowany na {res.hour}')
             if self.hour < res.hour < self.end_hour:
                 raise ValidationError(f'Stół jest zarezerwowany na {res.hour}')
