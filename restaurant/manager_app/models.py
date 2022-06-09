@@ -25,9 +25,9 @@ class Reservation(models.Model):
         """Return True if table is available for a reservation for given hour,
         reservation duration is set by default to 3 hours."""
 
-        table_reservations = Reservation.objects.filter(date=self.date).filter(table_id=self.table_id)
+        table_reservations = Reservation.objects.filter(date=self.date, table_id=self.table_id).exclude(id=self.id)
         for res in table_reservations:
-            if res.hour < self.hour < res.end_hour:
+            if res.hour <= self.hour < res.end_hour:
                 raise ValidationError(f'Stół jest zajęty, jest zarezerwowany na {res.hour}')
             if self.hour < res.hour < self.end_hour:
                 raise ValidationError(f'Stół jest zarezerwowany na {res.hour}')
@@ -36,9 +36,14 @@ class Reservation(models.Model):
     def clean(self):
         """Creates a predicted end time for reservation, so the table can't be booked twice simultaneously"""
         self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
-        self.table_is_free()
+        # self.table_is_free()
         super(Reservation, self).clean()
-
+        
+    def save(self, *args, **kwargs):
+        self.end_hour = self.hour.replace(hour=(self.hour.hour + RESERVATION_DURATION) % 24)
+        self.table_is_free()
+        super(Reservation, self).save()
+        
     def __str__(self):
         return f'{self.name}, {self.date}'
 

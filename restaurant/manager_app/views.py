@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -12,6 +13,9 @@ from django.views.generic import CreateView, ListView, UpdateView
 from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
+
+# TODO Table if free check is currently in a clean method, so we have to manually use it every time before a save,
+# maybe it would be better to do it in a save
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
@@ -137,6 +141,11 @@ class ReservationDetailView(View):
             ctx['extra_info_form'] = ExtraInfoForm(initial=initial_dict)
         except ExtraInfo.DoesNotExist:
             pass
+        try:
+            ctx['message'] = self.request.session['message']
+            del self.request.session['message']
+        except KeyError:
+            pass
         return render(request, 'reservations-details.html', ctx)
 
 
@@ -148,7 +157,11 @@ class SaveTableToReservation(View):
         if form.is_valid():
             reservation = form.cleaned_data['reservation']
             reservation.table = form.cleaned_data['table']
-            reservation.save()
+            try:
+                reservation.save()
+            except ValidationError as e:
+                request.session['message'] = e.message
+
         return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
 
 
