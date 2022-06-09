@@ -1,7 +1,7 @@
-from random import randint, randrange
+from random import randint, randrange, choice
 from datetime import datetime, timedelta, date
 from faker import Factory
-from manager_app.models import Reservation, Dish, RESERVATION_DURATION
+from manager_app.models import *
 
 
 def add_starters():
@@ -109,3 +109,12 @@ def create_reservations():
                                    date=data,
                                    hour=start_hour,
                                    end_hour=start_hour.replace(hour=start_hour.hour + RESERVATION_DURATION))
+
+
+def add_menus_to_reservations():
+    reservations = Reservation.objects.all()
+    menus = Menu.objects.all()
+    for index, reservation in enumerate(reservations):
+        if index % 2 == 0:
+            reservation.menu = choice(menus)
+            reservation.save()

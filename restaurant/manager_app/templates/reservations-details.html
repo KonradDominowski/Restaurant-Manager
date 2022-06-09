@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <h2>{{ res.date }} {{ res.hour|date:"G:i" }} - {{ res.name }}</h2>
-
+    {% include 'base_message.html' %}
     <ul>
         <li>Stół: {{ res.table }}
             <p>
