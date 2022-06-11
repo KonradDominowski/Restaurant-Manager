@@ -11,10 +11,13 @@
                     Change table
                 </button>
             </p>
+            {{ table_form.non_field_errors }}
             <div class="collapse" id="table_form">
-                <form method="post" action="{% url 'save-table' res_id=res.id %}">
+                <form method="post">
                     {% csrf_token %}
-                    {{ table_form }}
+                    {% for field in table_form %}
+                        {{ field.label }}: {{ field }}
+                    {% endfor %}
                     <button type="submit">Dodaj stół</button>
                 </form>
             </div>
@@ -29,9 +32,11 @@
                 </button>
             </p>
             <div class="collapse" id="guests_form">
-                <form method="post" action="{% url 'save-guests' res_id=res.id %}">
+                <form method="post">
                     {% csrf_token %}
-                    {{ guest_number_form }}
+                    {% for field in guest_number_form %}
+                        {{ field.label }}: {{ field }}
+                    {% endfor %}
                     <button type="submit">Zapisz</button>
                 </form>
             </div>
@@ -45,9 +50,11 @@
                 </button>
             </p>
             <div class="collapse" id="menu_form">
-                <form method="post" action="{% url 'save-menu' res_id=res.id %}">
+                <form method="post">
                     {% csrf_token %}
-                    {{ menu_form }}
+                    {% for field in menu_form %}
+                        {{ field.label }}: {{ field }}
+                    {% endfor %}
                     <button type="submit">Dodaj menu</button>
                 </form>
                 {% if res.menu %}

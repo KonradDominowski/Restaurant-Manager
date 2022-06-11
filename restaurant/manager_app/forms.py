@@ -72,19 +72,22 @@ class CreateMenuForm(ModelForm):
         }
 
 
-class SelectTableForm(Form):
-    reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
-    table = forms.ModelChoiceField(Table.objects.all())
+class SelectTableForm(ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['table']
 
 
-class ChangeGuestNumberForm(Form):
-    reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
-    guests = forms.IntegerField(validators=[is_positive])
+class ChangeGuestNumberForm(ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['guest_number']
 
 
-class SelectMenuForm(Form):
-    reservation = forms.ModelChoiceField(Reservation.objects.all(), widget=forms.HiddenInput)
-    menu = forms.ModelChoiceField(Menu.objects.all())
+class SelectMenuForm(ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['menu']
 
 
 class ExtraInfoForm(ModelForm):

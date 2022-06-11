@@ -14,9 +14,6 @@ from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, Extra
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
 
 
-# TODO Table if free check is currently in a clean method, so we have to manually use it every time before a save,
-# maybe it would be better to do it in a save
-
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
@@ -76,15 +73,23 @@ class CreateReservationView(View):
             raw_date = request.GET.get('date').split(',')
             res_date = date(int(raw_date[0]), int(raw_date[1]), int(raw_date[2]))
             form = CreateReservationForm(initial={'date': res_date})
-        return render(request, 'reservations-add.html', {'form': form})
+        ctx = {
+            'form': form
+        }
+        try:
+            ctx['message'] = self.request.session['message']
+            del self.request.session['message']
+        except KeyError:
+            pass
+        return render(request, 'reservations-add.html', ctx)
 
     def post(self, request):
         form = CreateReservationForm(request.POST)
         if form.is_valid():
+            print(form.cleaned_data)
             form.save()
             return redirect(reverse('upcoming-reservations'))
-        else:
-            return render(request, 'reservations-add.html', {'form': form})
+        return render(request, 'reservations-add.html', {'form': form})
 
 
 # TODO - Add a functionality to change default 2 week time period to whatever user needs
@@ -118,75 +123,48 @@ class ReservationDetailView(View):
     so it is possible to change each of them separately.
     """
 
-    def get(self, request, res_id):
+    def build_context(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
-        tables = Table.objects.all()
-        initial_dict = {'reservation': reservation}
-        table_form = SelectTableForm(initial=initial_dict)
-        guest_number_form = ChangeGuestNumberForm(initial=initial_dict)
-        menu_form = SelectMenuForm(initial=initial_dict)
-        extra_info_form = ExtraInfoForm(initial=initial_dict)
+        table_form = SelectTableForm(instance=reservation)
+        guest_number_form = ChangeGuestNumberForm(instance=reservation)
+        menu_form = SelectMenuForm(instance=reservation)
+
         ctx = {
             'res': reservation,
-            'tables': tables,
             'table_form': table_form,
             'menu_form': menu_form,
-            'extra_info_form': extra_info_form,
             'guest_number_form': guest_number_form
         }
+
         try:
             extra_info = ExtraInfo.objects.get(reservation=reservation)
-            initial_dict = {key: value for key, value in extra_info.get_fields()}
             ctx['extra_info'] = extra_info
-            ctx['extra_info_form'] = ExtraInfoForm(initial=initial_dict)
+            ctx['extra_info_form'] = ExtraInfoForm(instance=extra_info)
         except ExtraInfo.DoesNotExist:
-            pass
-        try:
-            ctx['message'] = self.request.session['message']
-            del self.request.session['message']
-        except KeyError:
-            pass
+            ctx['extra_info_form'] = ExtraInfoForm()
+
+        return ctx
+
+    def get(self, request, res_id):
+        ctx = self.build_context(request, res_id)
         return render(request, 'reservations-details.html', ctx)
 
-
-class SaveTableToReservation(View):
-    """View changing table assigned to a reservation, and then redirecting back to its details."""
-
     def post(self, request, res_id):
-        form = SelectTableForm(request.POST)
-        if form.is_valid():
-            reservation = form.cleaned_data['reservation']
-            reservation.table = form.cleaned_data['table']
-            try:
-                reservation.save()
-            except ValidationError as e:
-                request.session['message'] = e.message
+        reservation = Reservation.objects.get(id=res_id)
+        table_form = SelectTableForm(request.POST, instance=reservation)
+        guest_number_form = ChangeGuestNumberForm(request.POST, instance=reservation)
+        menu_form = SelectMenuForm(request.POST, instance=reservation)
 
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+        if table_form.is_valid():
+            table_form.save()
+        if guest_number_form.is_valid():
+            guest_number_form.save()
+        if menu_form.is_valid():
+            menu_form.save()
 
+        ctx = self.build_context(request, res_id)
 
-class SaveGuestsToReservation(View):
-    """View changing number of guests of a reservation, and then redirecting back to its details."""
-
-    def post(self, request, res_id):
-        form = ChangeGuestNumberForm(request.POST)
-        if form.is_valid():
-            reservation = form.cleaned_data['reservation']
-            reservation.guest_number = form.cleaned_data['guests']
-            reservation.save()
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
-
-
-class SaveMenuToReservation(View):
-    """View changing menu assigned to a reservation, and then redirecting back to its details."""
-
-    def post(self, request, res_id):
-        form = SelectMenuForm(request.POST)
-        if form.is_valid():
-            reservation = form.cleaned_data['reservation']
-            reservation.menu = form.cleaned_data['menu']
-            reservation.save()
-        return redirect(reverse('reservation-details', kwargs={'res_id': res_id}))
+        return render(request, 'reservations-details.html', ctx)
 
 
 class RemoveMenuFromReservation(View):

@@ -15,6 +15,7 @@ def reservation_1(table_1):
                       date=date(2000, 1, 1),
                       hour=time(20, 00, 00),
                       table_id=table_1.id)
+    res.clean()
     res.save()
     return res
 
@@ -177,6 +178,7 @@ class TestRelations:
                            hour=time(19, 00, 00),
                            table_id=table_1.id)
         with pytest.raises(ValidationError):
+            res2.clean()
             res2.save()
 
     def test_table_is_free_later_hour(self, reservation_1, table_1):
@@ -186,6 +188,7 @@ class TestRelations:
                            hour=time(22, 00, 00),
                            table_id=table_1.id)
         with pytest.raises(ValidationError):
+            res2.clean()
             res2.save()
 
     def test_table_is_free_same_hour(self, reservation_1, table_1):
@@ -195,6 +198,7 @@ class TestRelations:
                            hour=time(20, 00, 00),
                            table_id=table_1.id)
         with pytest.raises(ValidationError):
+            res2.clean()
             res2.save()
 
     def test_menu_adding_to_reservation(self, reservation_1, menu_1):
