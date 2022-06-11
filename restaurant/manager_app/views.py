@@ -182,7 +182,6 @@ class SaveInfoToReservation(View):
 
     def post(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
-
         try:
             extra_info = ExtraInfo.objects.get(reservation=reservation)
         except ExtraInfo.DoesNotExist:

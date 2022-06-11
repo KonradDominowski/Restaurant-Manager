@@ -63,10 +63,10 @@ class Table(models.Model):
 
 class Menu(models.Model):
     name = models.CharField(max_length=128, unique=True, verbose_name='Nazwa Menu')
-    prepared = models.BooleanField()
+    prepared = models.BooleanField(default=True)
     dishes = models.ManyToManyField('Dish', verbose_name='Dania')
     price = models.FloatField(verbose_name='Cena')
-    active = models.BooleanField()
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name}'
