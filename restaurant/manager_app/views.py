@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse
@@ -12,6 +13,10 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm
 from .models import Reservation, Dish, Menu, Table, ExtraInfo
+
+
+# TODO Wybór dat nadchodzących rezerwacji
+# TODO Uwzględnić przeszłe daty w liście rezerwacji
 
 
 def daterange(start_date, end_date):
@@ -86,7 +91,6 @@ class CreateReservationView(View):
     def post(self, request):
         form = CreateReservationForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
             form.save()
             return redirect(reverse('upcoming-reservations'))
         return render(request, 'reservations-add.html', {'form': form})
@@ -125,9 +129,15 @@ class ReservationDetailView(View):
 
     def build_context(self, request, res_id):
         reservation = Reservation.objects.get(id=res_id)
-        table_form = SelectTableForm(instance=reservation)
-        guest_number_form = ChangeGuestNumberForm(instance=reservation)
-        menu_form = SelectMenuForm(instance=reservation)
+
+        if request.method == 'GET':
+            table_form = SelectTableForm(instance=reservation)
+            guest_number_form = ChangeGuestNumberForm(instance=reservation)
+            menu_form = SelectMenuForm(instance=reservation)
+        else:
+            table_form = SelectTableForm(request.POST, instance=reservation)
+            guest_number_form = ChangeGuestNumberForm(request.POST, instance=reservation)
+            menu_form = SelectMenuForm(request.POST, instance=reservation)
 
         ctx = {
             'res': reservation,
@@ -225,7 +235,7 @@ class ReservationsSearchView(View):
         return render(request, 'reservations-search.html', ctx)
 
 
-class CreateMenuView(View):
+class CreateMenuView(LoginRequiredMixin, View):
     def get(self, request):
         ctx = get_dishes_by_type()
         return render(request, 'menu-add.html', ctx)
@@ -304,7 +314,6 @@ class DetailMenuView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = Menu.objects.get(id=self.kwargs['menu_id'])
-        print(Menu.objects.get(id=self.kwargs['menu_id']))
         return context
 
 
@@ -334,6 +343,7 @@ class SignUpView(View):
     def post(self, request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
+            print(form.cleaned_data)
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')

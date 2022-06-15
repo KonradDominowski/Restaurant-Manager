@@ -2,6 +2,8 @@ from datetime import time, date
 from unittest import TestCase
 
 import pytest
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
@@ -14,9 +16,29 @@ pytestmark = pytest.mark.django_db
 def reservation_1():
     return Reservation.objects.create(
         date=date.today(),
-        name='Test',
+        name='Test 1',
         guest_number=10,
         hour=time(10, 10),
+        notes=''
+    )
+
+
+def reservation_2():
+    return Reservation.objects.create(
+        date=date.today(),
+        name='Test 2',
+        guest_number=20,
+        hour=time(20, 20),
+        notes=''
+    )
+
+
+def reservation_3():
+    return Reservation.objects.create(
+        date=date.today(),
+        name='Test 3',
+        guest_number=30,
+        hour=time(20, 30),
         notes=''
     )
 
@@ -28,18 +50,34 @@ def menu_1():
     )
 
 
+def dish_1():
+    return Dish.objects.create(
+        name='Test dish',
+        price=20,
+        category='Test category'
+    )
+
+
+def dish_2():
+    return Dish.objects.create(
+        name='Test dish 2',
+        price=15,
+        category='Test category 2'
+    )
+
+
 class TestIndexView:
     def setup(self):
         self.client = Client()
         self.url = reverse('index-view')
 
-    def test_index_get(self):
-        response = self.client.get(self.url)
-        assert response.status_code == 200
-
     def test_index_template(self):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='index.html')
+
+    def test_index_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
 
 
 # TODO Nie wiem dlaczego zwraca kod 200, a nie 302, czyli redirect
@@ -76,7 +114,7 @@ class TestIndexView:
 #         response = self.client.post(self.url)
 #
 #         assert Dish.objects.count() == 0
-#         assert response.status_code == 302
+#         assert response.status_code == 200
 
 
 class TestDishListView:
@@ -84,13 +122,13 @@ class TestDishListView:
         self.client = Client()
         self.url = reverse('dish-list')
 
-    def test_dish_list_get(self):
-        response = self.client.get(self.url)
-        assert response.status_code == 200
-
     def test_dish_list_template(self):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='dish-list.html')
+
+    def test_dish_list_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
 
 
 class TestCreateReservationView:
@@ -106,9 +144,9 @@ class TestCreateReservationView:
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='reservations-add.html')
 
-    def test_create_reservation_post_no_data(self):
-        with pytest.raises(AttributeError):
-            response = self.client.post(self.url)
+    # def test_create_reservation_post_no_data(self):
+    #     with pytest.raises(AttributeError):
+    #         response = self.client.post(self.url)
 
     def test_create_reservation_add_to_db(self):
         table_1 = Table.objects.create(
@@ -133,13 +171,13 @@ class TestUpcomingReservationsView:
         self.client = Client()
         self.url = reverse('upcoming-reservations')
 
-    def test_upcoming_reservations_get(self):
-        response = self.client.get(self.url)
-        assert response.status_code == 200
-
     def test_upcoming_reservations_template(self):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='reservations-upcoming.html')
+
+    def test_upcoming_reservations_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
 
     def test_upcoming_reservations_count(self):
         for i in range(1, 20):
@@ -162,7 +200,7 @@ class TestUpcomingReservationsView:
         assert response.context['reservations'].count() == reservations.count()
 
 
-# TODO - test posts for each form
+# TODO testy postów dla każdego formularza
 class TestReservationDetailView:
     def setup(self):
         res = reservation_1()
@@ -180,15 +218,17 @@ class TestReservationDetailView:
 
 class TestRemoveMenuFromReservation:
     def setup(self):
-        res = reservation_1()
-        menu = menu_1()
-        res.menu = menu
+        self.res = reservation_1()
+        self.menu = menu_1()
+        self.res.menu = self.menu
         self.client = Client()
-        self.url = reverse('remove-menu', args=[res.id])
+        self.url = reverse('remove-menu', args=[self.res.id])
 
     def test_remove_menu_post(self):
         response = self.client.post(self.url)
         assert response.status_code == 302
+
+    def test_remove_menu_removing(self):
         assert Reservation.objects.first().menu is None
 
 
@@ -209,6 +249,7 @@ class TestSaveInfoToReservation(TestCase):
         response = self.client.post(self.url, data=data)
 
         assert response.status_code == 302
+
         self.res.refresh_from_db()
         assert self.res.extrainfo.vegetarian == 1
         assert self.res.extrainfo.vegan == 2
@@ -216,3 +257,202 @@ class TestSaveInfoToReservation(TestCase):
         assert self.res.extrainfo.peanut_allergy == 4
         assert self.res.extrainfo.dairy == 5
         assert self.res.extrainfo.child_seat == 6
+
+
+class TestDeleteReservationView:
+    def setup(self):
+        self.res = reservation_1()
+        self.client = Client()
+        self.url = reverse('delete-reservation', kwargs={'res_id': self.res.id})
+
+    def test_remove_reservation_post(self):
+        response = self.client.post(self.url)
+        assert response.status_code == 302
+
+    def test_remove_reservation_removing(self):
+        response = self.client.post(self.url)
+        assert Reservation.objects.count() == 0
+
+
+class TestReservationsSearchView:
+    def setup(self):
+        self.res_1 = reservation_1()
+        self.res_2 = reservation_2()
+        self.res_3 = reservation_3()
+
+        self.client = Client()
+        self.url = reverse('search-reservations')
+
+    def test_reservations_search_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='reservations-search.html')
+
+    def test_reservations_search_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        assert response.context['reservations'].count() == Reservation.objects.count()
+
+    def test_reservations_search_post(self):
+        data = {
+            'search': 'Test 2'
+        }
+        response = self.client.post(self.url, data)
+        assert response.context['reservations'].count() == 1
+
+        data = {
+            'search': 'Test'
+        }
+        response = self.client.post(self.url, data)
+        assert response.context['reservations'].count() == 3
+
+
+# TODO Testing with login
+
+# class TestCreateMenuView:
+#     def setup(self):
+#         self.client = Client()
+#         self.url = reverse('create-menu')
+#         self.user = User.objects.create_user(
+#             username='test_user',
+#             password='test_password')
+#
+#     def test_create_menu_template(self):
+#         response = self.client.get(self.url)
+#         assertTemplateUsed(response, template_name='menu-add.html')
+#
+#     def test_create_menu_get(self):
+#         response = self.client.get(self.url)
+#         assert response.status_code == 200
+#
+#     def test_create_menu_post(self):
+#         data = {
+#             'name': 'Test menu',
+#             'price': 10
+#         }
+#         response = self.client.post(self.url, data)
+#         assert Menu.objects.count() == 1
+
+
+class TestEditMenuView:
+    def setup(self):
+        self.dish_1 = dish_1()
+        self.dish_2 = dish_2()
+        self.menu = menu_1()
+        self.menu.dishes.add(self.dish_1)
+        self.client = Client()
+        self.url = reverse('edit-menu', kwargs={'menu_id': self.menu.id})
+
+    def test_edit_menu_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='menu-edit.html')
+
+    def test_edit_menu_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+
+    def test_edit_menu_post(self):
+        data = {
+            'name': 'New Test name',
+            'price': 30,
+            self.dish_1: 'on',
+            self.dish_2: 'on'
+        }
+        response = self.client.post(self.url, data=data)
+        self.menu.refresh_from_db()
+
+        assert response.status_code == 302
+        assert self.menu.name == 'New Test name'
+        assert self.dish_2 and self.dish_1 in self.menu.dishes.all()
+        assert self.menu.dishes.count() == 2
+
+        data = {
+            'name': 'New Test name',
+            'price': 30,
+            self.dish_2: 'on'
+        }
+        response = self.client.post(self.url, data=data)
+        self.menu.refresh_from_db()
+
+        assert response.status_code == 302
+        assert self.menu.name == 'New Test name'
+        assert self.menu.dishes.count() == 1
+        assert self.dish_1 not in self.menu.dishes.all()
+        assert self.dish_2 in self.menu.dishes.all()
+
+
+class TestArchiveMenuView:
+    def setup(self):
+        self.menu = menu_1()
+        self.client = Client()
+        self.url = reverse('archive-menu', kwargs={'menu_id': self.menu.id})
+
+    def test_archive_menu_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+
+    def test_archive_menu_archive(self):
+        response = self.client.get(self.url)
+        assert Menu.objects.filter(active=True).count() == 0
+
+
+class TestDetailMenuView:
+    def setup(self):
+        self.dish_1 = dish_1()
+        self.menu = menu_1()
+        self.menu.dishes.add(dish_1())
+        self.client = Client()
+        self.url = reverse('menu-details', kwargs={'menu_id': self.menu.id})
+
+    def test_details_menu_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='menu-details.html')
+
+    def test_details_menu_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+
+    def test_details_menu_context(self):
+        response = self.client.get(self.url)
+        assert self.menu.dishes == response.context['menu'].dishes
+        assert self.menu.dishes.count() == response.context['menu'].dishes.count() == 1
+
+
+class TestMenuListView:
+    def setup(self):
+        self.menu_1 = menu_1()
+        self.client = Client()
+        self.url = reverse('menu-list')
+
+    def test_menu_list_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='menu-list.html')
+
+    def test_menu_list_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+
+    def test_menu_list_context(self):
+        response = self.client.get(self.url)
+        assert response.context['menus'].count() == Menu.objects.filter(active=True).count() == 1
+
+
+class TestSignUpView:
+    def setup(self):
+        self.client = Client()
+        self.url = reverse('signup')
+
+    def test_index_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='signup.html')
+
+    def test_index_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+
+    def test_index_post(self):
+        data = {
+            'username': 'test_user',
+            'password': 'test_password',
+        }
+        response = self.client.post(self.url, data=data)
+        assert response.status_code == 302
