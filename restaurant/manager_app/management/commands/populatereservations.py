@@ -3,8 +3,8 @@ from ._private import create_reservations
 
 
 class Command(BaseCommand):
-    help = 'Populates school with grades.'
+    help = 'Populates restaurant with reservations.'
 
     def handle(self, *args, **options):
         create_reservations()
-        self.stdout.write(self.style.SUCCESS("Succesfully populated restaurant with reservations"))
+        self.stdout.write(self.style.SUCCESS("Successfully populated restaurant with reservations"))

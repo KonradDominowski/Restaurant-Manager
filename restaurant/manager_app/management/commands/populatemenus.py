@@ -3,7 +3,7 @@ from ._private import add_menus_to_reservations
 
 
 class Command(BaseCommand):
-    help = 'Populates school with grades.'
+    help = 'Populates restaurant with menus.'
 
     def handle(self, *args, **options):
         add_menus_to_reservations()

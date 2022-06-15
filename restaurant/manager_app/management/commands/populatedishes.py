@@ -3,7 +3,7 @@ from ._private import add_dishes
 
 
 class Command(BaseCommand):
-    help = 'Populates school with grades.'
+    help = 'Populates restaurant with dishes.'
 
     def handle(self, *args, **options):
         add_dishes()
