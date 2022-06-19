@@ -2,6 +2,7 @@ from random import randint, randrange, choice
 from datetime import datetime, timedelta, date
 from faker import Factory
 from manager_app.models import *
+from manager_app.views import get_dishes_by_type
 
 
 def add_starters():
@@ -41,7 +42,8 @@ def add_dishes():
               ('Śledź smażony w zalewie octowej', 'Przystawka', 16),
               ('Tatar z wołowiny z siekaną cebulą, korniszonem i marynowanymi podgrzybkami', 'Przystawka', 32),
               (
-              'Tatar z marynowanego łososia z siekaną czerwoną cebulą, kaparami i czarnymi oliwkami', 'Przystawka', 36),
+                  'Tatar z marynowanego łososia z siekaną czerwoną cebulą, kaparami i czarnymi oliwkami', 'Przystawka',
+                  36),
               ('Carpaccio z polędwicy wołowej z oliwą truflową, kaparami parmezanem i rukolą', 'Przystawka', 36),
               ('Deska serów z suszonymi owocami', 'Przystawka', 49),
               ('Rosół z domowym makaronem', 'Zupa', 15),
@@ -61,11 +63,11 @@ def add_dishes():
               ('Pieczony filet z łososia na blanszowanym szpinaku z kaszą bulgur i z salsą mango chili', 'Danie główne',
                59),
               (
-              'Dorada pieczona w całości na sałatkach z pomidorem w kraście ziołowym oraz grillowanym ziemniakiem z masłem czosnkowym',
-              'Danie główne', 59),
+                  'Dorada pieczona w całości na sałatkach z pomidorem w kraście ziołowym oraz grillowanym ziemniakiem z masłem czosnkowym',
+                  'Danie główne', 59),
               (
-              'Sałata z grillowanym kurczakiem, warzywami julienne, kiełkami i sosem sojowo-imbirowym, oprószona sezamem',
-              'Danie główne', 32),
+                  'Sałata z grillowanym kurczakiem, warzywami julienne, kiełkami i sosem sojowo-imbirowym, oprószona sezamem',
+                  'Danie główne', 32),
               ('Świeży szpinak z panierowanymi kalmarami (8 szt.) i salsą pomidorową', 'Danie główne', 32),
               ('Sałata z marynowanym łososiem, owocami, pomidorkami cherry i dressingiem mango-chilli', 'Danie główne',
                36),
@@ -109,6 +111,19 @@ def create_reservations():
                                    date=data,
                                    hour=start_hour,
                                    end_hour=start_hour.replace(hour=start_hour.hour + RESERVATION_DURATION))
+
+
+def create_menus():
+    all_dishes = get_dishes_by_type()
+    prices = [70, 80, 90, 150]
+    for i in range(1, 6):
+        dishes = []
+        for key in all_dishes:
+            for _ in range(3):
+                dishes.append(choice(all_dishes[key]))
+        print(dishes)
+        menu = Menu.objects.create(name=f'Przykładowe menu {i}', price=choice(prices))
+        menu.dishes.add(*dishes)
 
 
 def add_menus_to_reservations():
