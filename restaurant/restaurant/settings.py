@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
-from .secret_key import SECRET_KEY
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,6 +78,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
     }
 }
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-pp_=^x7bx6&#)7woyf=x+1uiwnx2^ye+7w#neyly8*2xt+b4+(2ow$'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
