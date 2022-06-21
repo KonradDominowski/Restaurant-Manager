@@ -121,7 +121,6 @@ def create_menus():
         for key in all_dishes:
             for _ in range(3):
                 dishes.append(choice(all_dishes[key]))
-        print(dishes)
         menu = Menu.objects.create(name=f'Przykładowe menu {i}', price=choice(prices))
         menu.dishes.add(*dishes)
 

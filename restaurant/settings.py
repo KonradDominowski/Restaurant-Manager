@@ -75,8 +75,8 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'restaurant_db',
-        'USER': 'os.environ.get('DB_USER')',
-        'PASSWORD': 'os.environ.get('DB_PASSWORD')',
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
     }
 }
 

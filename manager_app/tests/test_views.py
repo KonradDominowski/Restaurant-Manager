@@ -43,6 +43,13 @@ def reservation_3():
     )
 
 
+def table_1():
+    return Table.objects.create(
+        name='Test table',
+        capacity=10
+    )
+
+
 def menu_1():
     return Menu.objects.create(
         name='Test menu',
@@ -54,7 +61,7 @@ def dish_1():
     return Dish.objects.create(
         name='Test dish',
         price=20,
-        category='Test category'
+        category='Przystawka'
     )
 
 
@@ -62,7 +69,31 @@ def dish_2():
     return Dish.objects.create(
         name='Test dish 2',
         price=15,
-        category='Test category 2'
+        category='Przystawka grupowa'
+    )
+
+
+def dish_3():
+    return Dish.objects.create(
+        name='Test dish',
+        price=20,
+        category='Zupa'
+    )
+
+
+def dish_4():
+    return Dish.objects.create(
+        name='Test dish 2',
+        price=15,
+        category='Danie główne'
+    )
+
+
+def dish_5():
+    return Dish.objects.create(
+        name='Test dish 2',
+        price=15,
+        category='Deser'
     )
 
 
@@ -113,6 +144,11 @@ class TestCreateDishView(TestCase):
 class TestDishListView(TestCase):
     def setUp(self):
         self.client = Client()
+        self.dish_1 = dish_1()
+        self.dish_2 = dish_2()
+        self.dish_3 = dish_3()
+        self.dish_4 = dish_4()
+        self.dish_5 = dish_5()
         self.url = reverse('dish-list')
 
     def test_dish_list_template(self):
@@ -122,6 +158,15 @@ class TestDishListView(TestCase):
     def test_dish_list_get(self):
         response = self.client.get(self.url)
         assert response.status_code == 200
+
+    def test_dish_list_all_dishes_are_shown(self):
+        response = self.client.get(self.url)
+        assert response.context['dish_list'].count() == 5
+        assert response.context['przystawka'].count() == 1
+        assert response.context['przystawka_grupowa'].count() == 1
+        assert response.context['zupa'].count() == 1
+        assert response.context['danie_glowne'].count() == 1
+        assert response.context['deser'].count() == 1
 
 
 class TestCreateReservationView(TestCase):
@@ -137,16 +182,7 @@ class TestCreateReservationView(TestCase):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='reservations-add.html')
 
-    # def test_create_reservation_post_no_data(self):
-    #     with pytest.raises(AttributeError):
-    #         response = self.client.post(self.url)
-
     def test_create_reservation_add_to_db(self):
-        table_1 = Table.objects.create(
-            name='Test table',
-            capacity=10
-        )
-
         response = self.client.post(self.url, {
             'date': date.today(),  # Reservations in the past cannot be added to db, this is futureproof
             'name': 'Test',
@@ -196,9 +232,10 @@ class TestUpcomingReservationsView(TestCase):
 # TODO testy postów dla każdego formularza
 class TestReservationDetailView(TestCase):
     def setUp(self):
-        res = reservation_1()
+        self.res = reservation_1()
+        self.table = table_1()
         self.client = Client()
-        self.url = reverse('reservation-details', args=[res.id])
+        self.url = reverse('reservation-details', args=[self.res.id])
 
     def test_reservations_details_get(self):
         response = self.client.get(self.url)
@@ -207,6 +244,13 @@ class TestReservationDetailView(TestCase):
     def test_reservations_details_template(self):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='reservations-details.html')
+
+    # def test_reservation_details_table_change(self):
+    #     response = self.client.post(self.url, {
+    #         'table': self.table
+    #     })
+    #
+    #     assert self.res.table == self.table
 
 
 class TestRemoveMenuFromReservation(TestCase):
