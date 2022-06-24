@@ -41,29 +41,33 @@
                 </form>
             </div>
         </li>
-        <li>Menu: {{ res.menu }}
-            <p>
-                <button type="button" data-bs-toggle="collapse"
-                        data-bs-target="#menu_form"
-                        aria-expanded="false" aria-controls="collapseExample">
-                    Change menu
-                </button>
-            </p>
-            <div class="collapse" id="menu_form">
-                <form method="post">
+        {% if res.menu %}
+            <li>Menu: <a href="{% url 'menu-details' menu_id=res.menu.id %}">{{ res.menu }}</a>
+                {% else %}
+            <li>Menu: {{ res.menu }}
+        {% endif %}
+        <p>
+            <button type="button" data-bs-toggle="collapse"
+                    data-bs-target="#menu_form"
+                    aria-expanded="false" aria-controls="collapseExample">
+                Change menu
+            </button>
+        </p>
+        <div class="collapse" id="menu_form">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in menu_form %}
+                    {{ field.label }}: {{ field }}
+                {% endfor %}
+                <button type="submit">Dodaj menu</button>
+            </form>
+            {% if res.menu %}
+                <form method="post" action="{% url 'remove-menu' res_id=res.id %}">
                     {% csrf_token %}
-                    {% for field in menu_form %}
-                        {{ field.label }}: {{ field }}
-                    {% endfor %}
-                    <button type="submit">Dodaj menu</button>
+                    <button type="submit">Usuń menu</button>
                 </form>
-                {% if res.menu %}
-                    <form method="post" action="{% url 'remove-menu' res_id=res.id %}">
-                        {% csrf_token %}
-                        <button type="submit">Usuń menu</button>
-                    </form>
-                {% endif %}
-            </div>
+            {% endif %}
+        </div>
         </li>
         <li>
             <p>
