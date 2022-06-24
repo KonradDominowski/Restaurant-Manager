@@ -198,11 +198,11 @@ class TestCreateReservationView(TestCase):
 class TestUpcomingReservationsView(TestCase):
     def setUp(self):
         self.client = Client()
-        self.url = reverse('upcoming-reservations')
+        self.url = reverse('browse-reservations')
 
     def test_upcoming_reservations_template(self):
         response = self.client.get(self.url)
-        assertTemplateUsed(response, template_name='reservations-upcoming.html')
+        assertTemplateUsed(response, template_name='reservations-browse.html')
 
     def test_upcoming_reservations_get(self):
         response = self.client.get(self.url)
@@ -221,15 +221,17 @@ class TestUpcomingReservationsView(TestCase):
             res.save()
 
         end_date = date.today() + timedelta(days=14)
-        reservations = Reservation.objects.filter(date__gte=date.today(), date__lte=end_date).order_by('date', 'hour')
+        reservations = Reservation.objects.filter(date__gte=date.today(),
+                                                  date__lte=(end_date + timedelta(days=1))).order_by('date', 'hour')
 
         response = self.client.get(self.url)
 
         assert response.status_code == 200
         assert response.context['reservations'].count() == reservations.count()
 
+        # TODO testy postów dla każdego formularza
 
-# TODO testy postów dla każdego formularza
+
 class TestReservationDetailView(TestCase):
     def setUp(self):
         self.res = reservation_1()
