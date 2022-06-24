@@ -102,3 +102,12 @@ class ExtraInfoForm(ModelForm):
 class DateRangeForm(Form):
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Początek')
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Koniec')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data['start_date']
+        end_date = cleaned_data['end_date']
+
+        if start_date and end_date:
+            if end_date < start_date:
+                raise ValidationError('Data końcowa jest większa od początkowej')

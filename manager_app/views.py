@@ -16,10 +16,6 @@ from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, Extra
 from .models import Reservation, Dish, Menu, ExtraInfo
 
 
-# TODO Wybór dat nadchodzących rezerwacji
-# TODO Uwzględnić przeszłe daty w liście rezerwacji
-
-
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
@@ -97,8 +93,7 @@ class CreateReservationView(View):
         return render(request, 'reservations-add.html', {'form': form})
 
 
-# TODO Tests, validation of dates, second date must be later than first
-class UpcomingReservationsView(ListView):
+class BrowseReservationsView(ListView):
     """Shows all reservations scheduled in the following 2 weeks."""
 
     model = Reservation
@@ -160,9 +155,10 @@ class UpcomingReservationsView(ListView):
             context = self.get_context_data(start_date=start_date, end_date=end_date)
 
             return self.render_to_response(context)
+        return render(request, 'reservations-browse.html', {'form': form})
 
 
-# TODO - date, hour, name change
+# TODO - date, hour, name change, notes don't show, add form for them
 class ReservationDetailView(View):
     """
     This view display all details about a reservation. There is a form for each detail,
