@@ -50,10 +50,24 @@ def table_1():
     )
 
 
+def table_2():
+    return Table.objects.create(
+        name='Test table 2',
+        capacity=20
+    )
+
+
 def menu_1():
     return Menu.objects.create(
         name='Test menu',
         price=10
+    )
+
+
+def menu_2():
+    return Menu.objects.create(
+        name='Test menu 2',
+        price=20
     )
 
 
@@ -195,20 +209,10 @@ class TestCreateReservationView(TestCase):
         assert response.status_code == 302
 
 
-class TestUpcomingReservationsView(TestCase):
+class TestBrowseReservationsView(TestCase):
     def setUp(self):
         self.client = Client()
-        self.url = reverse('upcoming-reservations')
-
-    def test_upcoming_reservations_template(self):
-        response = self.client.get(self.url)
-        assertTemplateUsed(response, template_name='reservations-upcoming.html')
-
-    def test_upcoming_reservations_get(self):
-        response = self.client.get(self.url)
-        assert response.status_code == 200
-
-    def test_upcoming_reservations_count(self):
+        self.url = reverse('browse-reservations')
         for i in range(1, 20):
             res = Reservation(
                 date=date.today() + timedelta(days=i),
@@ -220,20 +224,56 @@ class TestUpcomingReservationsView(TestCase):
             res.clean()
             res.save()
 
+    def test_browse_reservations_template(self):
+        response = self.client.get(self.url)
+        assertTemplateUsed(response, template_name='reservations-browse.html')
+
+    def test_browse_reservations_get(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+
+    def test_browse_reservations_count(self):
         end_date = date.today() + timedelta(days=14)
-        reservations = Reservation.objects.filter(date__gte=date.today(), date__lte=end_date).order_by('date', 'hour')
+        reservations = Reservation.objects.filter(date__gte=date.today(),
+                                                  date__lte=(end_date + timedelta(days=1))).order_by('date', 'hour')
 
         response = self.client.get(self.url)
 
         assert response.status_code == 200
         assert response.context['reservations'].count() == reservations.count()
 
+    def test_browse_reservations_post(self):
+        start_date = date.today() + timedelta(days=3)
+        end_date = date.today() + timedelta(days=7)
+        reservations = Reservation.objects.filter(date__gte=start_date,
+                                                  date__lte=(end_date + timedelta(days=1))).order_by('date', 'hour')
+        response = self.client.post(self.url, {
+            'start_date': start_date,
+            'end_date': end_date
+        })
 
-# TODO testy postów dla każdego formularza
+        assert response.context['reservations'].count() == reservations.count()
+
+    def test_browse_reservations_post_bad_dates(self):
+        start_date = date.today() + timedelta(days=3)
+        end_date = date.today()
+        reservations = Reservation.objects.filter(date__gte=start_date,
+                                                  date__lte=(end_date + timedelta(days=1))).order_by('date', 'hour')
+        response = self.client.post(self.url, {
+            'start_date': start_date,
+            'end_date': end_date
+        })
+
+        assert response.context['form'].non_field_errors()
+
+
 class TestReservationDetailView(TestCase):
     def setUp(self):
         self.res = reservation_1()
         self.table = table_1()
+        self.table_2 = table_2()
+        self.menu = menu_1()
+        self.menu_2 = menu_2()
         self.client = Client()
         self.url = reverse('reservation-details', args=[self.res.id])
 
@@ -245,12 +285,43 @@ class TestReservationDetailView(TestCase):
         response = self.client.get(self.url)
         assertTemplateUsed(response, template_name='reservations-details.html')
 
-    # def test_reservation_details_table_change(self):
-    #     response = self.client.post(self.url, {
-    #         'table': self.table
-    #     })
-    #
-    #     assert self.res.table == self.table
+    def test_reservation_details_table_change(self):
+        response = self.client.post(self.url, {
+            'table': self.table.id
+        })
+
+        self.res.refresh_from_db()
+        assert self.res.table == self.table
+
+        response = self.client.post(self.url, {
+            'table': self.table_2.id
+        })
+
+        self.res.refresh_from_db()
+        assert self.res.table == self.table_2
+
+    def test_reservation_details_guest_change(self):
+        response = self.client.post(self.url, {
+            'guest_number': 20
+        })
+
+        self.res.refresh_from_db()
+        assert self.res.guest_number == 20
+
+    def test_reservation_details_menu_change(self):
+        response = self.client.post(self.url, {
+            'menu': self.menu.id
+        })
+
+        self.res.refresh_from_db()
+        assert self.res.menu == self.menu
+
+        response = self.client.post(self.url, {
+            'menu': self.menu_2.id
+        })
+
+        self.res.refresh_from_db()
+        assert self.res.menu == self.menu_2
 
 
 class TestRemoveMenuFromReservation(TestCase):

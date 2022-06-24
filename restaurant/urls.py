@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, reverse
 from django.contrib.auth import views as auth_views
-from manager_app.views import IndexView, CreateDishView, CreateReservationView, UpcomingReservationsView, \
+from manager_app.views import IndexView, CreateDishView, CreateReservationView, BrowseReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveInfoToReservation, \
     ReservationsSearchView, DishListView, RemoveMenuFromReservation, DeleteReservation, SignUpView, EditMenuView, \
     ArchiveMenuView
@@ -36,7 +36,7 @@ urlpatterns = [
     path('menu/dish/list/', DishListView.as_view(), name='dish-list'),
     path('menu/dish/add/', CreateDishView.as_view(), name='dish-add'),
     path('reservations/add/', CreateReservationView.as_view(), name='create-reservation'),
-    path('reservations/upcoming/', UpcomingReservationsView.as_view(), name='upcoming-reservations'),
+    path('reservations/browse/', BrowseReservationsView.as_view(), name='browse-reservations'),
     path('reservations/search/', ReservationsSearchView.as_view(), name='search-reservations'),
     path('reservations/details/<int:res_id>', ReservationDetailView.as_view(), name='reservation-details'),
     path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),

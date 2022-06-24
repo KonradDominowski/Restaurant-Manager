@@ -20,13 +20,13 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="{% url 'upcoming-reservations' %}" id="navbarDropdown"
+                <a class="nav-link dropdown-toggle" href="{% url 'browse-reservations' %}" id="navbarDropdown"
                    role="button" data-bs-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Rezerwacje
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href='{% url 'upcoming-reservations' %}'>Nadchodzące</a>
+                    <a class="dropdown-item" href='{% url 'browse-reservations' %}'>Przeglądaj</a>
                     <a class="dropdown-item" href='{% url 'create-reservation' %}'>Dodaj</a>
                 </div>
             </li>

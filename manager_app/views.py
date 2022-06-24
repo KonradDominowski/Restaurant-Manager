@@ -3,20 +3,17 @@ from datetime import date, timedelta
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.translation import gettext as _
 from django.views import View
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView
 
-from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm
-from .models import Reservation, Dish, Menu, Table, ExtraInfo
-
-
-# TODO Wybór dat nadchodzących rezerwacji
-# TODO Uwzględnić przeszłe daty w liście rezerwacji
+from .forms import CreateReservationForm, SelectTableForm, SelectMenuForm, ExtraInfoForm, ChangeGuestNumberForm, \
+    DateRangeForm
+from .models import Reservation, Dish, Menu, ExtraInfo
 
 
 def daterange(start_date, end_date):
@@ -92,25 +89,34 @@ class CreateReservationView(View):
         form = CreateReservationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(reverse('upcoming-reservations'))
+            return redirect(reverse('browse-reservations'))
         return render(request, 'reservations-add.html', {'form': form})
 
 
-# TODO - Add a functionality to change default 2 week time period to whatever user needs
-class UpcomingReservationsView(ListView):
+class BrowseReservationsView(ListView):
     """Shows all reservations scheduled in the following 2 weeks."""
 
     model = Reservation
-    template_name = 'reservations-upcoming.html'
+    template_name = 'reservations-browse.html'
     context_object_name = 'reservations'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, start_date=None, end_date=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        today = date.today()
-        end_date = today + timedelta(days=14)
-        queryset = Reservation.objects.filter(date__gte=today, date__lte=end_date).order_by('date', 'hour')
+
+        if not start_date:
+            start_date = date.today()
+        if not end_date:
+            end_date = start_date + timedelta(days=14)
+
+        context['form'] = DateRangeForm(initial={'start_date': start_date, 'end_date': end_date})
+
+        if start_date == end_date:
+            queryset = Reservation.objects.filter(date__gte=start_date).order_by('date', 'hour')
+        else:
+            queryset = Reservation.objects.filter(date__gte=start_date,
+                                                  date__lte=(end_date + timedelta(days=1))).order_by('date', 'hour')
         context['reservations'] = queryset
-        context['date_range'] = daterange(today, end_date)
+        context['date_range'] = daterange(start_date, end_date + timedelta(days=1))
         context['res_date'] = sorted(list(set([res.date for res in queryset])))
         try:
             context['message'] = self.request.session['message']
@@ -119,8 +125,40 @@ class UpcomingReservationsView(ListView):
             pass
         return context
 
+    def post(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        allow_empty = self.get_allow_empty()
 
-# TODO - date, hour, name change
+        if not allow_empty:
+            # When pagination is enabled and object_list is a queryset,
+            # it's better to do a cheap query than to load the unpaginated
+            # queryset in memory.
+            if self.get_paginate_by(self.object_list) is not None and hasattr(
+                    self.object_list, "exists"
+            ):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = not self.object_list
+            if is_empty:
+                raise Http404(
+                    _("Empty list and “%(class_name)s.allow_empty” is False.")
+                    % {
+                        "class_name": self.__class__.__name__,
+                    }
+                )
+
+        form = DateRangeForm(request.POST)
+
+        if form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            context = self.get_context_data(start_date=start_date, end_date=end_date)
+
+            return self.render_to_response(context)
+        return render(request, 'reservations-browse.html', {'form': form})
+
+
+# TODO - date, hour, name change, notes don't show, add form for them
 class ReservationDetailView(View):
     """
     This view display all details about a reservation. There is a form for each detail,
@@ -212,7 +250,7 @@ class DeleteReservation(View):
         reservation = Reservation.objects.get(id=res_id)
         request.session['message'] = f'Usunięto rezerwację <strong>{reservation}</strong>'
         reservation.delete()
-        return redirect(reverse('upcoming-reservations'))
+        return redirect(reverse('browse-reservations'))
 
 
 class ReservationsSearchView(View):
