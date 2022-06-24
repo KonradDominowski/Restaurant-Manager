@@ -85,7 +85,7 @@
                 </form>
             </div>
         </li>
-        {% if extra_info %}
+        {% if has_extra_info %}
             <li>
                 <ol>
                     {% for name, value in extra_info.get_fields|slice:"1:" %}
