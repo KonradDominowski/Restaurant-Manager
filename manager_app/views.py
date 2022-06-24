@@ -151,7 +151,7 @@ class ReservationDetailView(View):
             ctx['extra_info'] = extra_info
             ctx['extra_info_form'] = ExtraInfoForm(instance=extra_info)
         except ExtraInfo.DoesNotExist:
-            ctx['extra_info_form'] = ExtraInfoForm()
+            ctx['extra_info_form'] = ExtraInfoForm(initial={'reservation': reservation})
 
         return ctx
 
