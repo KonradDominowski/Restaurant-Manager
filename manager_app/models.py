@@ -109,7 +109,10 @@ class ExtraInfo(models.Model):
         return text
 
     def __repr__(self):
-        return str(self.reservation)
+        text = ''
+        for name, value in self.get_fields():
+            text += f'{name}: {value}\n'
+        return text
 
     def get_fields(self):
         return [(field.verbose_name, getattr(self, field.name)) for field in ExtraInfo._meta.fields]

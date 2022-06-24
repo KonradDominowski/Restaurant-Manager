@@ -97,3 +97,8 @@ class ExtraInfoForm(ModelForm):
         widgets = {
             'reservation': forms.HiddenInput(),
         }
+
+
+class DateRangeForm(Form):
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Początek')
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Koniec')

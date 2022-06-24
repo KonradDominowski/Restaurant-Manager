@@ -143,15 +143,17 @@ class ReservationDetailView(View):
             'res': reservation,
             'table_form': table_form,
             'menu_form': menu_form,
-            'guest_number_form': guest_number_form
+            'guest_number_form': guest_number_form,
         }
 
         try:
             extra_info = ExtraInfo.objects.get(reservation=reservation)
             ctx['extra_info'] = extra_info
             ctx['extra_info_form'] = ExtraInfoForm(instance=extra_info)
+            ctx['has_extra_info'] = sum(value for name, value in extra_info.get_fields()[1:]) > 0
         except ExtraInfo.DoesNotExist:
             ctx['extra_info_form'] = ExtraInfoForm(initial={'reservation': reservation})
+            ctx['has_extra_info'] = False
 
         return ctx
 
