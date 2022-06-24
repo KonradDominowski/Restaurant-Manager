@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Wybierz daty</button>
+    </form>
+
     {% include 'base_message.html' %}
     {% for date in date_range %}
         {% include 'base_reservation_list.html' %}
