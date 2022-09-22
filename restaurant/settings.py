@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['restaurantmanagementapp.herokuapp.com']
+ALLOWED_HOSTS = ['restaurantmanagementapp.herokuapp.com', '*']
 
 # Application definition
 
@@ -72,11 +72,12 @@ WSGI_APPLICATION = 'restaurant.wsgi.application'
 
 DATABASES = {
     'default': {
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'restaurant_db',
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'PORT': '5432'
     }
 }
 
