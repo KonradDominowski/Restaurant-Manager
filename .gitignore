@@ -133,3 +133,4 @@ dmypy.json
 /django_secrets.env
 /docker-compose.yml
 /Dockerfile
+/restaurant_data/

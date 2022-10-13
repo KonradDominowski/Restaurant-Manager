@@ -21,6 +21,7 @@ from manager_app.views import IndexView, CreateDishView, CreateReservationView, 
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveInfoToReservation, \
     ReservationsSearchView, DishListView, RemoveMenuFromReservation, DeleteReservation, SignUpView, EditMenuView, \
     ArchiveMenuView
+from manager_app.views_api import ReservationViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -42,4 +43,5 @@ urlpatterns = [
     path('reservations/details/<int:res_id>/removemenu', RemoveMenuFromReservation.as_view(), name='remove-menu'),
     path('reservations/details/<int:res_id>/saveinfo', SaveInfoToReservation.as_view(), name='save-info'),
     path('reservations/details/<int:res_id>/delete', DeleteReservation.as_view(), name='delete-reservation'),
+    path('api/', ReservationViewSet.as_view())
 ]
