@@ -2,9 +2,6 @@
 
 Aplikacja dla menadżera restauracji do zarządzania rezerwacjami i menu.
 
-[Przetestuj aplikację](https://restaurantmanagementapp.herokuapp.com/)
-
-
 ## Funkcjonalności
 
 ### Zarządzanie rezerwacjami
