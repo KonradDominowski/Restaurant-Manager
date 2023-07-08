@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['restaurantmanagementapp.herokuapp.com', '*']
+ALLOWED_HOSTS = ['13.50.30.127', 'localhost']
 
 # Application definition
 
@@ -82,7 +82,7 @@ DATABASES = {
 }
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = 'b7256d5b02eb57106545503baa50c59f63ace115cdb7a12fc957135f69cb'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
