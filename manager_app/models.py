@@ -2,17 +2,37 @@ from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import User
 
 hour_list = [
     (datetime(1000, 1, 1, hour=10) + i * timedelta(minutes=15)).time()
     for i in range(53)
 ]
 HOUR_CHOICES = zip(hour_list, hour_list)
-RESERVATION_DURATION = 3
+RESERVATION_DURATION_IN_HOURS = 3
+
+
+class Restaurant(models.Model):
+    name = models.CharField(max_length=256, verbose_name='Nazwa restauracji')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    @classmethod
+    def get_default_pk(cls):
+        restaurant, created = cls.objects.get_or_create(
+            name='Default Restaurant',
+            owner=User.objects.get(username='admin')
+        )
+        return restaurant.pk
+
+    def __str__(self):
+        return self.name
 
 
 # TODO - Add fields: reservation confirmed and advance payment
 class Reservation(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, default=Restaurant.get_default_pk, null=True,
+                                   verbose_name='Restauracja')
     name = models.CharField(max_length=128, verbose_name="Nazwa rezerwacji")
     guest_number = models.PositiveIntegerField(verbose_name="Ilość gości")
     date = models.DateField(null=True, verbose_name="Data")
@@ -53,7 +73,7 @@ class Reservation(models.Model):
 
     def clean(self):
         self.end_hour = self.hour.replace(
-            hour=(self.hour.hour + RESERVATION_DURATION) % 24
+            hour=(self.hour.hour + RESERVATION_DURATION_IN_HOURS) % 24
         )
         self.table_is_free()
         super(Reservation, self).clean()
@@ -71,14 +91,18 @@ class Reservation(models.Model):
 
 
 class Table(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, default=Restaurant.get_default_pk, null=True,
+                                   verbose_name='Restauracja')
     name = models.CharField(max_length=64, verbose_name="Stół")
     capacity = models.IntegerField(verbose_name="Ilość miejsc")
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name
 
 
 class Menu(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, default=Restaurant.get_default_pk, null=True,
+                                   verbose_name='Restauracja')
     name = models.CharField(max_length=128, unique=True, verbose_name="Nazwa Menu")
     prepared = models.BooleanField(default=True)
     dishes = models.ManyToManyField("Dish", verbose_name="Dania")
@@ -86,7 +110,7 @@ class Menu(models.Model):
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name
 
 
 DISH_CATEGORY = (
@@ -114,6 +138,8 @@ DISH_CATEGORY = (
 
 
 class Dish(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, default=Restaurant.get_default_pk, null=True,
+                                   verbose_name='Restauracja')
     name = models.CharField(max_length=128, verbose_name="Nazwa Dania")
     category = models.CharField(
         max_length=32, choices=DISH_CATEGORY, verbose_name="Kategoria"
@@ -121,7 +147,7 @@ class Dish(models.Model):
     price = models.FloatField(verbose_name="Cena")
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name
 
 
 class ExtraInfo(models.Model):
@@ -147,10 +173,11 @@ class ExtraInfo(models.Model):
     )
 
     def __str__(self):
-        text = ""
-        for name, value in self.get_fields():
-            text += f"{name}: {value}\n"
-        return text
+        # text = ""
+        # for name, value in self.get_fields():
+        #     text += f"{name}: {value}\n"
+        # return text
+        return f'{self.reservation}'
 
     def __repr__(self):
         text = ""

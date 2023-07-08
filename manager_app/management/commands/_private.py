@@ -206,7 +206,7 @@ def create_reservations():
             guest_number=randint(10, 50),
             date=data,
             hour=start_hour,
-            end_hour=start_hour.replace(hour=start_hour.hour + RESERVATION_DURATION),
+            end_hour=start_hour.replace(hour=start_hour.hour + RESERVATION_DURATION_IN_HOURS),
         )
 
 
