@@ -2,6 +2,8 @@
 
 Aplikacja dla menadżera restauracji do zarządzania rezerwacjami i menu.
 
+[Przetestuj aplikację](http://13.50.30.127/)
+
 ## Funkcjonalności
 
 ### Zarządzanie rezerwacjami
@@ -28,7 +30,7 @@ Python, Django, Bootstrap, PostgreSQL
 
 Application for a restaurant manager, helping with management of menu and reservations.
 
-[Test the app](https://restaurantmanagementapp.herokuapp.com/)
+[Test the app](http://13.50.30.127/)
 
 
 ## Functionalities
