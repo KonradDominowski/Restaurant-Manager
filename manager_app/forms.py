@@ -89,6 +89,10 @@ class SelectMenuForm(ModelForm):
         model = Reservation
         fields = ['menu']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['menu'].queryset = Menu.objects.filter(active=True)
+
 
 class ExtraInfoForm(ModelForm):
     class Meta:

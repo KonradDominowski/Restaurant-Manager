@@ -72,16 +72,17 @@ WSGI_APPLICATION = 'restaurant.wsgi.application'
 
 DATABASES = {
     'default': {
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'restaurant_db',
-        'USER': 'admin',
-        'PASSWORD': 'password',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'PORT': '5432'
     }
 }
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = 'b7256d5b02eb57106545503baa50c59f63ace115cdb7a12fc957135f69cb'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
