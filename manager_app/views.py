@@ -19,7 +19,7 @@ from .forms import (
     ChangeGuestNumberForm,
     DateRangeForm,
 )
-from .models import Reservation, Dish, Menu, ExtraInfo
+from .models import Reservation, Dish, Menu, ExtraInfo, Restaurant
 
 
 def daterange(start_date, end_date):
@@ -43,8 +43,12 @@ def get_dishes_by_type():
 class IndexView(View):
     def get(self, request):
 
+        # user = request.user
+        # restaurant = Restaurant.objects.get(owner=user)
+
         today = date.today()
         reservations = Reservation.objects.filter(date=today).order_by("hour")
+
         all_guests = sum(i.guest_number for i in reservations)
         ctx = {
             "date": today,
@@ -146,7 +150,7 @@ class BrowseReservationsView(ListView):
             # it's better to do a cheap query than to load the unpaginated
             # queryset in memory.
             if self.get_paginate_by(self.object_list) is not None and hasattr(
-                self.object_list, "exists"
+                    self.object_list, "exists"
             ):
                 is_empty = not self.object_list.exists()
             else:
@@ -203,7 +207,7 @@ class ReservationDetailView(View):
             ctx["extra_info"] = extra_info
             ctx["extra_info_form"] = ExtraInfoForm(instance=extra_info)
             ctx["has_extra_info"] = (
-                sum(value for name, value in extra_info.get_fields()[1:]) > 0
+                    sum(value for name, value in extra_info.get_fields()[1:]) > 0
             )
         except ExtraInfo.DoesNotExist:
             ctx["extra_info_form"] = ExtraInfoForm(initial={"reservation": reservation})
@@ -343,12 +347,12 @@ class EditMenuView(View):
             #     menu_to_update.dishes.add(dish)
 
             for (
-                dish
+                    dish
             ) in (
-                menu_to_update.dishes.all()
+                    menu_to_update.dishes.all()
             ):  # Drugie podejście to usunięcie tylko dań,
                 if (
-                    dish not in new_dishes_query_set
+                        dish not in new_dishes_query_set
                 ):  # których nie ma w formularzu, a potem dodanie brakujących
                     menu_to_update.dishes.remove(dish)
 
@@ -408,7 +412,6 @@ class SignUpView(View):
     def post(self, request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
             form.save()
             username = form.cleaned_data.get("username")
             raw_password = form.cleaned_data.get("password1")

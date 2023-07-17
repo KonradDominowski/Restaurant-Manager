@@ -1,23 +1,33 @@
 from django.contrib import admin
-from .models import Restaurant, Menu, Reservation, Dish, ExtraInfo
+from .models import Restaurant, Menu, Reservation, Dish, ExtraInfo, Table
+
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Menu)
 class RestaurantAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(Reservation)
 class RestaurantAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Dish)
 class RestaurantAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(ExtraInfo)
+class RestaurantAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Table)
 class RestaurantAdmin(admin.ModelAdmin):
     pass
 

@@ -15,7 +15,7 @@ RESERVATION_DURATION_IN_HOURS = 3
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=256, verbose_name='Nazwa restauracji')
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='restaurants')
 
     @classmethod
     def get_default_pk(cls):
@@ -38,15 +38,15 @@ class Reservation(models.Model):
     date = models.DateField(null=True, verbose_name="Data")
     hour = models.TimeField(null=True, choices=HOUR_CHOICES, verbose_name="Godzina")
     end_hour = models.TimeField(
-        null=True, choices=HOUR_CHOICES, verbose_name="Godzina zakończenia"
+        null=True, blank=True,  choices=HOUR_CHOICES, verbose_name="Godzina zakończenia"
     )
     table = models.ForeignKey(
-        "Table", on_delete=models.CASCADE, null=True, verbose_name="Stół"
+        "Table", on_delete=models.CASCADE, null=True, blank=True, verbose_name="Stół"
     )
     menu = models.ForeignKey(
-        "Menu", on_delete=models.CASCADE, null=True, verbose_name="Menu"
+        "Menu", on_delete=models.CASCADE, null=True, blank=True,  verbose_name="Menu"
     )
-    notes = models.TextField(null=True, verbose_name="Notatki")
+    notes = models.TextField(null=True, blank=True,  verbose_name="Notatki")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Utworzono")
     updated = models.DateTimeField(auto_now=True, verbose_name="Zaktualizowano")
 

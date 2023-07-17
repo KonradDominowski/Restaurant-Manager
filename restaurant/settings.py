@@ -22,9 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['13.50.30.127', 'localhost']
+ALLOWED_HOSTS = ['13.50.30.127', 'localhost', '*']
 
 # Application definition
+
+# REST_FRAMEWORK = {
+#     # Use Django's standard `django.contrib.auth` permissions,
+#     # or allow read-only access for unauthenticated users.
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#     ]
+# }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,7 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'manager_app',
+    'rest_api',
     'django_extensions',
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -45,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'restaurant.urls'
@@ -131,3 +143,7 @@ TIME_INPUT_FORMATS = ['%H:%M']
 LOGIN_URL = '/login/'
 
 django_on_heroku.settings(locals())
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]

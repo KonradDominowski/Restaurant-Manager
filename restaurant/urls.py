@@ -15,7 +15,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, reverse
+from django.urls import path, reverse, include
 from django.contrib.auth import views as auth_views
 from manager_app.views import IndexView, CreateDishView, CreateReservationView, BrowseReservationsView, \
     CreateMenuView, DetailMenuView, MenuListView, ReservationDetailView, SaveInfoToReservation, \
@@ -23,6 +23,8 @@ from manager_app.views import IndexView, CreateDishView, CreateReservationView, 
     ArchiveMenuView
 
 urlpatterns = [
+    path('api/', include('rest_api.urls')),
+    path('api-auth/', include('rest_framework.urls')),
     path('admin/', admin.site.urls),
     path('', IndexView.as_view(), name='index-view'),
     path('signup/', SignUpView.as_view(), name='signup'),
